@@ -62,6 +62,22 @@ type Props = {|
 
 export type ResourceSelectorInterface = {| focus: FieldFocusFunction |};
 
+async function validateAudioDuration(url, maxDurationSeconds = 5) {
+  const response = await fetch(url);
+  const blob = await response.blob();
+
+  const blobUrl = URL.createObjectURL(blob);
+
+  const audio = document.createElement('audio');
+  audio.src = blobUrl;
+
+  audio.preload = 'metadata';
+
+  audio.addEventListener('loadedmetadata', () => {
+    console.log('duration is: ', audio.duration);
+  });
+}
+
 const ResourceSelector = React.forwardRef<Props, ResourceSelectorInterface>(
   (props, ref) => {
     const {
@@ -266,6 +282,13 @@ const ResourceSelector = React.forwardRef<Props, ResourceSelectorInterface>(
             selectedResources.forEach(resource => resource.delete());
 
             await resourceManagementProps.onFetchNewlyAddedResources();
+
+            const res = resourcesLoader.getResourceFullUrl(
+              project,
+              resourceName,
+              {}
+            );
+            validateAudioDuration(res, 5);
             triggerResourcesHaveChanged();
           }
 
@@ -276,12 +299,13 @@ const ResourceSelector = React.forwardRef<Props, ResourceSelectorInterface>(
         }
       },
       [
-        project,
         resourceManagementProps,
         resourceKind,
-        onChangeResourceName,
-        triggerResourcesHaveChanged,
         resourceSources,
+        onChangeResourceName,
+        project,
+        resourcesLoader,
+        triggerResourcesHaveChanged,
       ]
     );
 
