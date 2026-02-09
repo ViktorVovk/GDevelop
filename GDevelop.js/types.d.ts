@@ -2837,6 +2837,7 @@ export class SpineObjectConfiguration extends ObjectConfiguration {
   moveAnimation(oldIndex: number, newIndex: number): void;
   getScale(): number;
   getSpineResourceName(): string;
+  getSkinName(): string;
 }
 
 export class Vector2f extends EmscriptenObject {

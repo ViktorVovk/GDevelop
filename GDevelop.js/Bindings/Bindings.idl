@@ -3843,6 +3843,7 @@ interface SpineObjectConfiguration {
 
     double GetScale();
     [Const, Ref] DOMString GetSpineResourceName();
+    [Const, Ref] DOMString GetSkinName();
 };
 SpineObjectConfiguration implements ObjectConfiguration;
 
