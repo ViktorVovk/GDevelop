@@ -94,8 +94,7 @@ export default React.forwardRef<ParameterFieldProps, ParameterFieldInterface>(
           cancelled = true;
         };
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [project, objectName]
+      [project, objectName, globalObjectsContainer, objectsContainer]
     );
 
     const onChangeSelectValue = (event, value) => {

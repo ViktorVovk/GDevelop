@@ -139,14 +139,6 @@ const SpineEditor = ({
     [project, spineResourceName, setSourceSelectOptions]
   );
 
-  /**
-   * Manage Spine skins
-   *
-   * @skinsSelectOptionsList - evaluated skins list from spineData.skeleton
-   * @skinName - current used skinName (in the first open - is "" empty string, because the next step we set first default skinName in useEffect)
-   * @handleChangeSkinSelect - handler for change (select) event of skins
-   */
-
   const skinsSelectOptionsList = React.useMemo(
     () => {
       if (spineData.skeleton && spineData.skeleton.skins) {
