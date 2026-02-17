@@ -64,7 +64,10 @@ const buildEventPtrToPathMap = (
     map.set(event.ptr, currentPath);
 
     if (event.canHaveSubEvents()) {
-      const subEventsMap = buildEventPtrToPathMap(event.getSubEvents(), currentPath);
+      const subEventsMap = buildEventPtrToPathMap(
+        event.getSubEvents(),
+        currentPath
+      );
       subEventsMap.forEach((path, ptr) => map.set(ptr, path));
     }
   });
@@ -108,7 +111,11 @@ const searchInEventsList = (
   // Phase 1: Extract lightweight data from the C++ vector.
   // Avoid any heavy C++ calls (like getEventContext) while the vector is alive,
   // because they can trigger emscripten heap growth and invalidate the vector's memory.
-  type RawEntry = {| eventPath: Array<number>, positionInList: number, index: number |};
+  type RawEntry = {|
+    eventPath: Array<number>,
+    positionInList: number,
+    index: number,
+  |};
   const rawEntries: Array<RawEntry> = [];
   try {
     mapFor(0, rawResults.size(), index => {
@@ -156,8 +163,14 @@ const getInstructionSentence = (
   if (!instructionType) return '';
 
   const metadata = isCondition
-    ? gd.MetadataProvider.getConditionMetadata(gd.JsPlatform.get(), instructionType)
-    : gd.MetadataProvider.getActionMetadata(gd.JsPlatform.get(), instructionType);
+    ? gd.MetadataProvider.getConditionMetadata(
+        gd.JsPlatform.get(),
+        instructionType
+      )
+    : gd.MetadataProvider.getActionMetadata(
+        gd.JsPlatform.get(),
+        instructionType
+      );
   if (gd.MetadataProvider.isBadInstructionMetadata(metadata)) {
     return instructionType;
   }
@@ -188,7 +201,10 @@ const findMatchingInstructionSentence = (
   const needle = matchCase ? searchText : searchText.toLowerCase();
   const count = instructionsList.size();
   for (let i = 0; i < count; i++) {
-    const sentence = getInstructionSentence(instructionsList.get(i), isCondition);
+    const sentence = getInstructionSentence(
+      instructionsList.get(i),
+      isCondition
+    );
     const haystack = matchCase ? sentence : sentence.toLowerCase();
     if (haystack.includes(needle)) {
       return sentence;
@@ -233,19 +249,33 @@ const getEventContext = (
   const eventType = event.getType();
   switch (eventType) {
     case 'BuiltinCommonInstructions::Comment': {
-      const comment = gd.asCommentEvent(event).getComment().trim();
+      const comment = gd
+        .asCommentEvent(event)
+        .getComment()
+        .trim();
       return comment ? truncate(comment) : 'Comment';
     }
     case 'BuiltinCommonInstructions::Group': {
-      const groupName = gd.asGroupEvent(event).getName().trim();
+      const groupName = gd
+        .asGroupEvent(event)
+        .getName()
+        .trim();
       return groupName ? truncate(`Group: ${groupName}`) : 'Group';
     }
     case 'BuiltinCommonInstructions::JsCode': {
-      const inlineCode = gd.asJsCodeEvent(event).getInlineCode().trim();
-      return inlineCode ? truncate(`JavaScript: ${inlineCode}`) : 'JavaScript event';
+      const inlineCode = gd
+        .asJsCodeEvent(event)
+        .getInlineCode()
+        .trim();
+      return inlineCode
+        ? truncate(`JavaScript: ${inlineCode}`)
+        : 'JavaScript event';
     }
     case 'BuiltinCommonInstructions::Link': {
-      const target = gd.asLinkEvent(event).getTarget().trim();
+      const target = gd
+        .asLinkEvent(event)
+        .getTarget()
+        .trim();
       return target ? truncate(`Link to: ${target}`) : 'Link event';
     }
     case 'BuiltinCommonInstructions::Standard':
@@ -366,14 +396,17 @@ export const scanProjectForGlobalEventsSearch = (
       objectName: ?string,
     |}) => {
       mapFor(0, functionsContainer.getEventsFunctionsCount(), functionIndex => {
-        const eventsFunction = functionsContainer.getEventsFunctionAt(functionIndex);
+        const eventsFunction = functionsContainer.getEventsFunctionAt(
+          functionIndex
+        );
         const functionName = eventsFunction.getName();
         const matches = searchInEventsList(eventsFunction.getEvents(), inputs);
 
         pushIfMatches(
           groups,
           matches => ({
-            id: `extension:${extensionName}:${behaviorName || ''}:${objectName || ''}:${functionName}`,
+            id: `extension:${extensionName}:${behaviorName ||
+              ''}:${objectName || ''}:${functionName}`,
             label: behaviorName
               ? `${extensionFullName} / ${behaviorName} / ${functionName}`
               : objectName

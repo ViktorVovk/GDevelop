@@ -810,15 +810,18 @@ const MainFrame = (props: Props): React.MixedElement => {
     [i18n, props.storageProviders]
   );
 
-  const hasGlobalSearchTab = React.useCallback((editorTabs: EditorTabsState) => {
-    for (const paneIdentifier in editorTabs.panes) {
-      const pane = editorTabs.panes[paneIdentifier];
-      if (pane.editors.some(editor => editor.kind === 'global-search')) {
-        return true;
+  const hasGlobalSearchTab = React.useCallback(
+    (editorTabs: EditorTabsState) => {
+      for (const paneIdentifier in editorTabs.panes) {
+        const pane = editorTabs.panes[paneIdentifier];
+        if (pane.editors.some(editor => editor.kind === 'global-search')) {
+          return true;
+        }
       }
-    }
-    return false;
-  }, []);
+      return false;
+    },
+    []
+  );
 
   const clearGlobalSearchHighlightsInEditorTabs = React.useCallback(
     (editorTabs: EditorTabsState) => {
@@ -863,7 +866,11 @@ const MainFrame = (props: Props): React.MixedElement => {
 
       previousEditorTabs.current = state.editorTabs;
     },
-    [state.editorTabs, hasGlobalSearchTab, clearGlobalSearchHighlightsInEditorTabs]
+    [
+      state.editorTabs,
+      hasGlobalSearchTab,
+      clearGlobalSearchHighlightsInEditorTabs,
+    ]
   );
 
   const {

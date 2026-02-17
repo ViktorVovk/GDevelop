@@ -501,16 +501,16 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
       >
         <div style={styles.eventRowIndicator} />
         <div style={styles.eventRowColumns}>
-            <div style={styles.eventRowConditions}>
-              <span style={styles.eventRowText}>
-                {renderHighlightedText(parsed.conditionText, searchText)}
-              </span>
-            </div>
-            <div style={styles.eventRowActions}>
-              <span style={styles.eventRowText}>
-                {renderHighlightedText(parsed.actionText, searchText)}
-              </span>
-            </div>
+          <div style={styles.eventRowConditions}>
+            <span style={styles.eventRowText}>
+              {renderHighlightedText(parsed.conditionText, searchText)}
+            </span>
+          </div>
+          <div style={styles.eventRowActions}>
+            <span style={styles.eventRowText}>
+              {renderHighlightedText(parsed.actionText, searchText)}
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -569,7 +569,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
         </AccordionHeader>
         <AccordionBody disableGutters>
           <MatchesList>
-            {(eventRowClassName) => (
+            {eventRowClassName => (
               <Column noMargin expand>
                 {group.matches.map((match, index) =>
                   this._renderMatchRow(match, group, index, eventRowClassName)

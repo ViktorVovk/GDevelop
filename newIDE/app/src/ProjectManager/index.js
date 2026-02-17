@@ -95,7 +95,9 @@ const gamePropertiesItemId = getProjectManagerItemId('game-properties');
 const gameDashboardItemId = 'manage';
 const globalVariablesItemId = getProjectManagerItemId('global-variables');
 const gameResourcesItemId = getProjectManagerItemId('game-resources');
-const globalEventsSearchItemId = getProjectManagerItemId('global-events-search');
+const globalEventsSearchItemId = getProjectManagerItemId(
+  'global-events-search'
+);
 export const scenesRootFolderId = getProjectManagerItemId('scenes');
 export const extensionsRootFolderId = getProjectManagerItemId('extensions');
 export const externalEventsRootFolderId = getProjectManagerItemId(

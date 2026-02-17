@@ -67,7 +67,11 @@ export class EventsEditorContainer extends React.Component<RenderEditorContainer
     searchText?: string
   ) {
     if (this.editor) {
-      this.editor.setGlobalSearchResults(eventPaths, focusedEventPath, searchText);
+      this.editor.setGlobalSearchResults(
+        eventPaths,
+        focusedEventPath,
+        searchText
+      );
     }
   }
 

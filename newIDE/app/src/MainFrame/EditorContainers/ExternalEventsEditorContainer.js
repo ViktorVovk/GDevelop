@@ -97,7 +97,11 @@ export class ExternalEventsEditorContainer extends React.Component<
     searchText?: string
   ) {
     if (this.editor) {
-      this.editor.setGlobalSearchResults(eventPaths, focusedEventPath, searchText);
+      this.editor.setGlobalSearchResults(
+        eventPaths,
+        focusedEventPath,
+        searchText
+      );
     }
   }
 

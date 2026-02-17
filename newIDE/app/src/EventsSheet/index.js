@@ -452,7 +452,8 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
         const focusedEventIndex = resultEvents.findIndex(event =>
           gd.compare(event, focusedEvent)
         );
-        globalSearchFocusOffset = focusedEventIndex === -1 ? null : focusedEventIndex;
+        globalSearchFocusOffset =
+          focusedEventIndex === -1 ? null : focusedEventIndex;
       }
     }
 
@@ -2350,7 +2351,9 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
                       : this.state.globalSearchFocusOffset
                   }
                   highlightedSearchText={
-                    this.state.showSearchPanel ? null : this.state.globalSearchText
+                    this.state.showSearchPanel
+                      ? null
+                      : this.state.globalSearchText
                   }
                   onEventMoved={this._onEventMoved}
                   onEndEditingEvent={this._onEndEditingStringEvent}

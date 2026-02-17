@@ -521,7 +521,10 @@ export default (React.forwardRef<Props, VariableFieldInterface>(
 const escapeRegExpForHighlight = (text: string): string =>
   text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const highlightVariableText = (text: string, searchText: ?string): React.Node => {
+const highlightVariableText = (
+  text: string,
+  searchText: ?string
+): React.Node => {
   const query = searchText ? searchText.trim() : '';
   if (!query) return text;
 
