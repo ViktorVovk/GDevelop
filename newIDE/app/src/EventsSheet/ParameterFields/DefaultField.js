@@ -45,6 +45,26 @@ export default (React.forwardRef<ParameterFieldProps, ParameterFieldInterface>(
   +ref?: React.RefSetter<ParameterFieldInterface>,
 }>);
 
+const escapeRegExp = (text: string): string =>
+  text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const highlightText = (text: string, searchText: ?string): React.Node => {
+  const query = searchText ? searchText.trim() : '';
+  if (!query) return text;
+
+  const regex = new RegExp(`(${escapeRegExp(query)})`, 'ig');
+  const parts = text.split(regex);
+  return parts.map((part, index) =>
+    index % 2 === 1 ? (
+      <span key={`${part}-${index}`} className="global-search-text-match">
+        {part}
+      </span>
+    ) : (
+      <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
+    )
+  );
+};
+
 export const renderInlineDefaultField = ({
   value,
   expressionIsValid,
@@ -53,15 +73,24 @@ export const renderInlineDefaultField = ({
   InvalidParameterValue,
   DeprecatedParameterValue,
   MissingParameterValue,
-}: ParameterInlineRendererProps): string | React.MixedElement => {
+  highlightedSearchText,
+}: ParameterInlineRendererProps): string | React.Node => {
   if (!value && !parameterMetadata.isOptional()) {
     return <MissingParameterValue />;
   }
   if (!expressionIsValid) {
-    return <InvalidParameterValue>{value}</InvalidParameterValue>;
+    return (
+      <InvalidParameterValue>
+        {highlightText(value, highlightedSearchText)}
+      </InvalidParameterValue>
+    );
   }
   if (hasDeprecationWarning) {
-    return <DeprecatedParameterValue>{value}</DeprecatedParameterValue>;
+    return (
+      <DeprecatedParameterValue>
+        {highlightText(value, highlightedSearchText)}
+      </DeprecatedParameterValue>
+    );
   }
-  return value;
+  return highlightText(value, highlightedSearchText);
 };

@@ -138,7 +138,9 @@ const searchInEventsList = (
       id: `${entry.eventPath.join('-')}-${entry.positionInList}-${entry.index}`,
       eventPath: entry.eventPath,
       positionInList: entry.positionInList,
-      context: event ? getEventContext(event) : 'Event',
+      context: event
+        ? getEventContext(event, inputs.searchText, inputs.matchCase)
+        : 'Event',
     };
   });
 };
@@ -177,12 +179,39 @@ const getFirstInstructionSentence = (
   return getInstructionSentence(instructionsList.get(0), isCondition);
 };
 
+const findMatchingInstructionSentence = (
+  instructionsList: gdInstructionsList,
+  isCondition: boolean,
+  searchText: string,
+  matchCase: boolean
+): string => {
+  const needle = matchCase ? searchText : searchText.toLowerCase();
+  const count = instructionsList.size();
+  for (let i = 0; i < count; i++) {
+    const sentence = getInstructionSentence(instructionsList.get(i), isCondition);
+    const haystack = matchCase ? sentence : sentence.toLowerCase();
+    if (haystack.includes(needle)) {
+      return sentence;
+    }
+  }
+  return '';
+};
+
 const getEventContextFromConditionsAndActions = (
   conditions: gdInstructionsList,
-  actions: gdInstructionsList
+  actions: gdInstructionsList,
+  searchText: string,
+  matchCase: boolean
 ): string => {
-  const conditionSentence = getFirstInstructionSentence(conditions, true);
-  const actionSentence = getFirstInstructionSentence(actions, false);
+  // Find the instruction that actually contains the search match,
+  // falling back to the first instruction if the match is in event strings
+  // rather than instruction sentences.
+  const conditionSentence =
+    findMatchingInstructionSentence(conditions, true, searchText, matchCase) ||
+    getFirstInstructionSentence(conditions, true);
+  const actionSentence =
+    findMatchingInstructionSentence(actions, false, searchText, matchCase) ||
+    getFirstInstructionSentence(actions, false);
 
   if (conditionSentence && actionSentence) {
     return truncate(`If ${conditionSentence} then ${actionSentence}`);
@@ -196,7 +225,11 @@ const getEventContextFromConditionsAndActions = (
   return 'Event';
 };
 
-const getEventContext = (event: gdBaseEvent): string => {
+const getEventContext = (
+  event: gdBaseEvent,
+  searchText: string,
+  matchCase: boolean
+): string => {
   const eventType = event.getType();
   switch (eventType) {
     case 'BuiltinCommonInstructions::Comment': {
@@ -218,32 +251,44 @@ const getEventContext = (event: gdBaseEvent): string => {
     case 'BuiltinCommonInstructions::Standard':
       return getEventContextFromConditionsAndActions(
         gd.asStandardEvent(event).getConditions(),
-        gd.asStandardEvent(event).getActions()
+        gd.asStandardEvent(event).getActions(),
+        searchText,
+        matchCase
       );
     case 'BuiltinCommonInstructions::Else':
       return getEventContextFromConditionsAndActions(
         gd.asElseEvent(event).getConditions(),
-        gd.asElseEvent(event).getActions()
+        gd.asElseEvent(event).getActions(),
+        searchText,
+        matchCase
       );
     case 'BuiltinCommonInstructions::While':
       return getEventContextFromConditionsAndActions(
         gd.asWhileEvent(event).getConditions(),
-        gd.asWhileEvent(event).getActions()
+        gd.asWhileEvent(event).getActions(),
+        searchText,
+        matchCase
       );
     case 'BuiltinCommonInstructions::Repeat':
       return getEventContextFromConditionsAndActions(
         gd.asRepeatEvent(event).getConditions(),
-        gd.asRepeatEvent(event).getActions()
+        gd.asRepeatEvent(event).getActions(),
+        searchText,
+        matchCase
       );
     case 'BuiltinCommonInstructions::ForEach':
       return getEventContextFromConditionsAndActions(
         gd.asForEachEvent(event).getConditions(),
-        gd.asForEachEvent(event).getActions()
+        gd.asForEachEvent(event).getActions(),
+        searchText,
+        matchCase
       );
     case 'BuiltinCommonInstructions::ForEachChildVariable':
       return getEventContextFromConditionsAndActions(
         gd.asForEachChildVariableEvent(event).getConditions(),
-        gd.asForEachChildVariableEvent(event).getActions()
+        gd.asForEachChildVariableEvent(event).getActions(),
+        searchText,
+        matchCase
       );
     default:
       return truncate(`Event type: ${eventType}`);

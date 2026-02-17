@@ -414,6 +414,7 @@ const Instruction = (props: Props) => {
                 useAssignmentOperators,
                 projectScopedContainersAccessor:
                   props.projectScopedContainersAccessor,
+                highlightedSearchText: props.highlightedSearchText,
               })}
             </span>
           );

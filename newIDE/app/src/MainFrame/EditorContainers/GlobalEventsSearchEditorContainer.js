@@ -69,6 +69,27 @@ const styles = {
     justifyContent: 'space-between',
     padding: '10px 8px 6px 8px',
   },
+  searchQueryHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '8px 12px',
+    marginBottom: 8,
+    borderRadius: 4,
+    border: '1px solid var(--event-sheet-conditions-border-color, #e2e2e2)',
+    background: 'var(--event-sheet-conditions-background-color, #f1f2f2)',
+  },
+  searchQueryLabel: {
+    fontSize: 11,
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    opacity: 0.6,
+    letterSpacing: '0.05em',
+  },
+  searchQueryText: {
+    fontSize: 13,
+    fontWeight: 600,
+  },
   // Accordion header
   groupHeaderContent: {
     display: 'flex',
@@ -230,6 +251,7 @@ type State = {|
   groups: Array<GlobalSearchGroup>,
   expandedGroups: { [id: string]: boolean },
   hasSearched: boolean,
+  lastSearchText: string,
 |};
 
 const getEventPathLabel = (path: Array<number>) =>
@@ -340,6 +362,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
     groups: [],
     expandedGroups: {},
     hasSearched: false,
+    lastSearchText: '',
   };
 
   componentDidMount() {
@@ -419,7 +442,12 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
     groups.forEach(group => {
       expandedGroups[group.id] = true;
     });
-    this.setState({ groups, expandedGroups, hasSearched: true });
+    this.setState({
+      groups,
+      expandedGroups,
+      hasSearched: true,
+      lastSearchText: this.state.inputs.searchText,
+    });
   };
 
   _navigateToMatch = (
@@ -435,7 +463,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
         name: group.name,
         eventPath: focusedEventPath,
         highlightedEventPaths: deduplicateEventPaths(group.matches),
-        searchText: this.state.inputs.searchText,
+        searchText: this.state.lastSearchText,
       });
       return;
     }
@@ -456,7 +484,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
   ) => {
     const context = getMatchContext(match);
     const parsed = parseMatchContext(context);
-    const searchText = this.state.inputs.searchText;
+    const searchText = this.state.lastSearchText;
 
     return (
       <div
@@ -700,6 +728,14 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
                 </div>
               ) : (
                 <>
+                  <div style={styles.searchQueryHeader}>
+                    <span style={styles.searchQueryLabel}>
+                      <Trans>Search:</Trans>
+                    </span>
+                    <span style={styles.searchQueryText}>
+                      "{this.state.lastSearchText}"
+                    </span>
+                  </div>
                   <div style={styles.summaryBar}>
                     <Text noMargin size="body-small" color="secondary">
                       <Trans>
