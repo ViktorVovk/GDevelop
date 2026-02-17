@@ -53,12 +53,11 @@ export class ExternalEventsEditorContainer extends React.Component<
   editor: ?EventsSheetInterface;
   resourceExternallyChangedCallbackId: ?string;
 
-  // $FlowFixMe[missing-local-annot]
   state = {
     externalPropertiesDialogOpen: false,
   };
 
-  shouldComponentUpdate(nextProps: RenderEditorContainerProps): any {
+  shouldComponentUpdate(nextProps: RenderEditorContainerProps) {
     // We stop updates when the component is inactive.
     // If it's active, was active or becoming active again we let update propagate.
     // Especially important to note that when becoming inactive, a "last" update is allowed.
@@ -85,17 +84,25 @@ export class ExternalEventsEditorContainer extends React.Component<
   }
 
   updateToolbar() {
-    if (this.editor) {
-      this.editor.updateToolbar();
-    } else {
-      // Clear the toolbar if the editor is not ready yet to avoid showing stale toolbar
-      // from the previous editor (e.g., HomePage)
-      this.props.setToolbar(null);
-    }
+    if (this.editor) this.editor.updateToolbar();
   }
 
   scrollToEventPath(eventPath: Array<number>) {
     if (this.editor) this.editor.scrollToEventPath(eventPath);
+  }
+
+  setGlobalSearchResults(
+    eventPaths: Array<Array<number>>,
+    focusedEventPath: ?Array<number>,
+    searchText?: string
+  ) {
+    if (this.editor) {
+      this.editor.setGlobalSearchResults(eventPaths, focusedEventPath, searchText);
+    }
+  }
+
+  clearGlobalSearchResults() {
+    if (this.editor) this.editor.clearGlobalSearchResults();
   }
 
   forceUpdateEditor() {
@@ -199,7 +206,10 @@ export class ExternalEventsEditorContainer extends React.Component<
     });
   };
 
-  onCreateEventsFunction = (extensionName: any, eventsFunction: any) => {
+  onCreateEventsFunction = (
+    extensionName: string,
+    eventsFunction: gdEventsFunction
+  ) => {
     this.props.onCreateEventsFunction(
       extensionName,
       eventsFunction,
@@ -207,7 +217,7 @@ export class ExternalEventsEditorContainer extends React.Component<
     );
   };
 
-  render(): any {
+  render() {
     const { project, projectItemName } = this.props;
     const externalEvents = this.getExternalEvents();
     const layout = this.getLayout();
@@ -236,12 +246,10 @@ export class ExternalEventsEditorContainer extends React.Component<
             onBeginCreateEventsFunction={this.onBeginCreateEventsFunction}
             unsavedChanges={this.props.unsavedChanges}
             project={project}
-            // $FlowFixMe[incompatible-type]
             scope={scope}
             globalObjectsContainer={project.getObjects()}
             objectsContainer={layout.getObjects()}
             projectScopedContainersAccessor={
-              // $FlowFixMe[incompatible-type]
               new ProjectScopedContainersAccessor(scope)
             }
             events={externalEvents.getEvents()}
@@ -303,4 +311,4 @@ export class ExternalEventsEditorContainer extends React.Component<
 
 export const renderExternalEventsEditorContainer = (
   props: RenderEditorContainerPropsWithRef
-): React.Node => <ExternalEventsEditorContainer {...props} />;
+) => <ExternalEventsEditorContainer {...props} />;

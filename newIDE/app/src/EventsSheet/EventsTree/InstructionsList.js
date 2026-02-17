@@ -67,6 +67,7 @@ type Props = {|
   projectScopedContainersAccessor: ProjectScopedContainersAccessor,
 
   idPrefix: string,
+  highlightedSearchText?: ?string,
 |};
 
 const DropTarget = makeDropTarget<{
@@ -104,12 +105,12 @@ export default function InstructionsList({
   objectsContainer,
   projectScopedContainersAccessor,
   idPrefix,
-}: Props): React.Node {
+  highlightedSearchText,
+}: Props) {
   const [canPaste, setCanPaste] = React.useState(false);
 
   const addNewInstruction = React.useCallback(
     () => {
-      // $FlowFixMe[constant-condition]
       if (onAddNewInstruction)
         onAddNewInstruction({
           instrsList,
@@ -181,6 +182,7 @@ export default function InstructionsList({
         objectsContainer={objectsContainer}
         projectScopedContainersAccessor={projectScopedContainersAccessor}
         id={`${idPrefix}-${areConditions ? 'condition' : 'action'}-${i}`}
+        highlightedSearchText={highlightedSearchText}
       />
     );
   });

@@ -22,7 +22,6 @@ import InstructionsList from './InstructionsList';
 import DropIndicator from './DropIndicator';
 import ParameterRenderingService from '../ParameterRenderingService';
 import InvalidParameterValue from './InvalidParameterValue';
-import DeprecatedParameterValue from './DeprecatedParameterValue';
 import MissingParameterValue from './MissingParameterValue';
 import { makeDragSourceAndDropTarget } from '../../UI/DragAndDrop/DragSourceAndDropTarget';
 import {
@@ -109,7 +108,31 @@ type Props = {|
   projectScopedContainersAccessor: ProjectScopedContainersAccessor,
 
   id: string,
+  highlightedSearchText?: ?string,
 |};
+
+const escapeRegExp = (text: string): string =>
+  text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const renderHighlightedText = (
+  text: string,
+  highlightedSearchText: ?string
+): React.Node => {
+  const query = highlightedSearchText ? highlightedSearchText.trim() : '';
+  if (!query) return text;
+
+  const regex = new RegExp(`(${escapeRegExp(query)})`, 'ig');
+  const parts = text.split(regex);
+  return parts.map((part, index) =>
+    index % 2 === 1 ? (
+      <span key={`${part}-${index}`} className="global-search-text-match">
+        {part}
+      </span>
+    ) : (
+      <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
+    )
+  );
+};
 
 const shouldNotBeValidated = ({
   value,
@@ -132,7 +155,6 @@ const formatValue = ({
     ? i18n._(t`Base layer`)
     : value;
 
-// $FlowFixMe[missing-local-annot]
 const isInstructionVisible = (scope, instructionMetadata) =>
   (instructionMetadata.isRelevantForLayoutEvents() &&
     (scope.layout || scope.externalEvents)) ||
@@ -206,7 +228,7 @@ const InstructionMissing = (props: {|
   }
 };
 
-const Instruction = (props: Props): React.Node => {
+const Instruction = (props: Props) => {
   const {
     platform,
     instruction,
@@ -281,14 +303,11 @@ const Instruction = (props: Props): React.Node => {
                 />
               );
             }
-            const deprecatedPrefix =
-              i === 0 &&
-              showDeprecatedInstructionWarning ===
-                'icon-and-deprecated-warning-text' &&
-              metadata.isHidden()
-                ? '[DEPRECATED] '
-                : '';
-            return <span key={i}>{deprecatedPrefix + value}</span>;
+            return (
+              <span key={i}>
+                {renderHighlightedText(value, props.highlightedSearchText)}
+              </span>
+            );
           }
 
           const parameterMetadata = metadata.getParameter(parameterIndex);
@@ -299,9 +318,8 @@ const Instruction = (props: Props): React.Node => {
               ? 'number'
               : parameterMetadata.getType();
           let expressionIsValid = true;
-          let hasDeprecationWarning = false;
           if (!shouldNotBeValidated({ value, parameterType })) {
-            const validationResult = gd.InstructionValidator.validateParameter(
+            expressionIsValid = gd.InstructionValidator.isParameterValid(
               platform,
               projectScopedContainers,
               instruction,
@@ -309,10 +327,6 @@ const Instruction = (props: Props): React.Node => {
               parameterIndex,
               value
             );
-            expressionIsValid = validationResult.isValid();
-            if (showDeprecatedInstructionWarning !== 'no') {
-              hasDeprecationWarning = validationResult.hasDeprecationWarning();
-            }
             // TODO Move this code inside `InstructionValidator.isParameterValid`
             if (
               expressionIsValid &&
@@ -369,7 +383,6 @@ const Instruction = (props: Props): React.Node => {
               className={classNames({
                 [selectableArea]: true,
                 [instructionParameter]: true,
-                // $FlowFixMe[invalid-computed-prop]
                 [parameterType]: true,
               })}
               onClick={domEvent => {
@@ -394,11 +407,9 @@ const Instruction = (props: Props): React.Node => {
                 scope,
                 value: formattedValue,
                 expressionIsValid,
-                hasDeprecationWarning,
                 parameterMetadata,
                 renderObjectThumbnail,
                 InvalidParameterValue,
-                DeprecatedParameterValue,
                 MissingParameterValue,
                 useAssignmentOperators,
                 projectScopedContainersAccessor:
@@ -479,9 +490,8 @@ const Instruction = (props: Props): React.Node => {
                   [selectableArea]: true,
                   [selectedArea]: props.selected,
                   [warningInstruction]:
-                    showDeprecatedInstructionWarning !== 'no' &&
-                    (!isInstructionVisible(scope, metadata) ||
-                      metadata.isHidden()),
+                    showDeprecatedInstructionWarning &&
+                    !isInstructionVisible(scope, metadata),
                 })}
                 onClick={e => {
                   e.stopPropagation();
@@ -516,21 +526,10 @@ const Instruction = (props: Props): React.Node => {
                 tabIndex={0}
                 id={id}
               >
-                {showDeprecatedInstructionWarning !== 'no' &&
-                metadata.isHidden() ? (
+                {showDeprecatedInstructionWarning && metadata.isHidden() ? (
                   <Tooltip
                     title={
-                      metadata.getDeprecationMessage() ? (
-                        <>
-                          {props.isCondition ? (
-                            <Trans>Deprecated condition</Trans>
-                          ) : (
-                            <Trans>Deprecated action</Trans>
-                          )}
-                          {': '}
-                          {metadata.getDeprecationMessage()}
-                        </>
-                      ) : props.isCondition ? (
+                      props.isCondition ? (
                         <Trans>Deprecated condition</Trans>
                       ) : (
                         <Trans>Deprecated action</Trans>
@@ -634,6 +633,7 @@ const Instruction = (props: Props): React.Node => {
                       props.projectScopedContainersAccessor
                     }
                     idPrefix={props.id}
+                    highlightedSearchText={props.highlightedSearchText}
                   />
                 )}
               </React.Fragment>
