@@ -468,11 +468,17 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
       return;
     }
 
+    // For extensions/prefabs
     this.props.onOpenEventsFunctionsExtension(
       group.extensionName,
       group.functionName,
       group.behaviorName || undefined,
-      group.objectName || undefined
+      group.objectName || undefined,
+      {
+        eventPath: focusedEventPath,
+        highlightedEventPaths: deduplicateEventPaths(group.matches),
+        searchText: this.state.lastSearchText,
+      }
     );
   };
 

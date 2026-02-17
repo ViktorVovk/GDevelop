@@ -2798,8 +2798,22 @@ const MainFrame = (props: Props): React.MixedElement => {
       name: string,
       initiallyFocusedFunctionName?: ?string,
       initiallyFocusedBehaviorName?: ?string,
-      initiallyFocusedObjectName?: ?string
+      initiallyFocusedObjectName?: ?string,
+      navigationOptions?: ?{|
+        eventPath: Array<number>,
+        highlightedEventPaths: Array<Array<number>>,
+        searchText: string,
+      |}
     ) => {
+      if (navigationOptions) {
+        clearGlobalSearchHighlightsInOpenedEditors();
+        setPendingEventNavigation({
+          name,
+          locationType: 'extension',
+          eventPath: navigationOptions.eventPath,
+        });
+      }
+
       setState(state => ({
         ...state,
         // $FlowFixMe[incompatible-type]
@@ -2816,8 +2830,40 @@ const MainFrame = (props: Props): React.MixedElement => {
           },
         }),
       }));
+
+      if (navigationOptions) {
+        setTimeout(() => {
+          setState(latestState => {
+            for (const paneIdentifier in latestState.editorTabs.panes) {
+              const pane = latestState.editorTabs.panes[paneIdentifier];
+              for (const editor of pane.editors) {
+                const editorRef: any = editor.editorRef;
+                if (
+                  editor.kind === 'events functions extension' &&
+                  editor.projectItemName === name &&
+                  editorRef &&
+                  editorRef.setGlobalSearchResults
+                ) {
+                  editorRef.setGlobalSearchResults(
+                    navigationOptions.highlightedEventPaths,
+                    navigationOptions.eventPath,
+                    navigationOptions.searchText
+                  );
+                  return latestState;
+                }
+              }
+            }
+            return latestState;
+          });
+        }, 450);
+      }
     },
-    [currentProject, setState, getEditorOpeningOptions]
+    [
+      currentProject,
+      setState,
+      getEditorOpeningOptions,
+      clearGlobalSearchHighlightsInOpenedEditors,
+    ]
   );
 
   const openResources = React.useCallback(
