@@ -22,6 +22,7 @@ import InstructionsList from './InstructionsList';
 import DropIndicator from './DropIndicator';
 import ParameterRenderingService from '../ParameterRenderingService';
 import InvalidParameterValue from './InvalidParameterValue';
+import DeprecatedParameterValue from './DeprecatedParameterValue';
 import MissingParameterValue from './MissingParameterValue';
 import { makeDragSourceAndDropTarget } from '../../UI/DragAndDrop/DragSourceAndDropTarget';
 import {
@@ -318,8 +319,9 @@ const Instruction = (props: Props) => {
               ? 'number'
               : parameterMetadata.getType();
           let expressionIsValid = true;
+          let hasDeprecationWarning = false;
           if (!shouldNotBeValidated({ value, parameterType })) {
-            expressionIsValid = gd.InstructionValidator.isParameterValid(
+            const validationResult = gd.InstructionValidator.validateParameter(
               platform,
               projectScopedContainers,
               instruction,
@@ -327,6 +329,10 @@ const Instruction = (props: Props) => {
               parameterIndex,
               value
             );
+            expressionIsValid = validationResult.isValid();
+            if (showDeprecatedInstructionWarning !== 'no') {
+              hasDeprecationWarning = validationResult.hasDeprecationWarning();
+            }
             // TODO Move this code inside `InstructionValidator.isParameterValid`
             if (
               expressionIsValid &&
@@ -407,9 +413,11 @@ const Instruction = (props: Props) => {
                 scope,
                 value: formattedValue,
                 expressionIsValid,
+                hasDeprecationWarning,
                 parameterMetadata,
                 renderObjectThumbnail,
                 InvalidParameterValue,
+                DeprecatedParameterValue,
                 MissingParameterValue,
                 useAssignmentOperators,
                 projectScopedContainersAccessor:
