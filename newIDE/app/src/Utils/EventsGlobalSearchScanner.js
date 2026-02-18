@@ -60,7 +60,6 @@ const buildEventPtrToPathMap = (
   mapFor(0, eventsList.getEventsCount(), index => {
     const event = eventsList.getEventAt(index);
     const currentPath = [...parentPath, index];
-    // $FlowFixMe - ptr is a numeric identifier for the C++ object.
     map.set(event.ptr, currentPath);
 
     if (event.canHaveSubEvents()) {
@@ -123,7 +122,6 @@ const searchInEventsList = (
       if (!searchResult.isEventValid()) return;
 
       const event = searchResult.getEvent();
-      // $FlowFixMe - ptr is a numeric identifier for the C++ object.
       const eventPath = eventPtrToPathMap.get(event.ptr);
       if (!eventPath) return;
 

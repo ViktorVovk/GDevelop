@@ -5224,7 +5224,6 @@ const MainFrame = (props: Props): React.MixedElement => {
           onRenameEventsFunctionsExtension={renameEventsFunctionsExtension}
           onRenameExternalEvents={renameExternalEvents}
           onOpenResources={openResources}
-          onOpenGlobalSearch={openGlobalSearch}
           onReloadEventsFunctionsExtensions={onReloadEventsFunctionsExtensions}
           onWillInstallExtension={onWillInstallExtension}
           onExtensionInstalled={onExtensionInstalled}

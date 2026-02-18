@@ -224,6 +224,7 @@ type State = {|
   globalSearchResults: ?Array<gdBaseEvent>,
   globalSearchFocusOffset: ?number,
   globalSearchText: ?string,
+  searchResults: ?Array<gdBaseEvent>,
   searchFocusOffset: ?number,
   navigationHighlightEvent: ?gdBaseEvent,
 
@@ -326,6 +327,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
     globalSearchResults: null,
     globalSearchFocusOffset: null,
     globalSearchText: null,
+    searchResults: null,
     searchFocusOffset: null,
     navigationHighlightEvent: null,
 
@@ -439,7 +441,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
     eventPaths.forEach(path => {
       const event = findEventByPath(this.props.events, path);
       if (event) {
-        // $FlowFixMe - ptr is a numeric identifier for the C++ object.
+        // $FlowFixMe[prop-missing] - ptr is a numeric identifier for the C++ object.
         eventsByPtr.set(event.ptr, event);
       }
     });
@@ -450,6 +452,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
       const focusedEvent = findEventByPath(this.props.events, focusedEventPath);
       if (focusedEvent) {
         const focusedEventIndex = resultEvents.findIndex(event =>
+          // $FlowFixMe[incompatible-exact]
           gd.compare(event, focusedEvent)
         );
         globalSearchFocusOffset =
@@ -2337,23 +2340,17 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
                   onOpenExternalEvents={onOpenExternalEvents}
                   onOpenLayout={onOpenLayout}
                   searchResults={
-                    this.state.navigationHighlightEvent
+                    this.state.globalSearchResults ||
+                    (this.state.navigationHighlightEvent
                       ? [this.state.navigationHighlightEvent]
-                      : this.state.showSearchPanel
-                      ? eventsSearchResultEvents
-                      : this.state.globalSearchResults
+                      : eventsSearchResultEvents)
                   }
                   searchFocusOffset={
-                    this.state.navigationHighlightEvent
+                    this.state.globalSearchFocusOffset !== null
+                      ? this.state.globalSearchFocusOffset
+                      : this.state.navigationHighlightEvent
                       ? 0
-                      : this.state.showSearchPanel
-                      ? searchFocusOffset
-                      : this.state.globalSearchFocusOffset
-                  }
-                  highlightedSearchText={
-                    this.state.showSearchPanel
-                      ? null
-                      : this.state.globalSearchText
+                      : searchFocusOffset
                   }
                   onEventMoved={this._onEventMoved}
                   onEndEditingEvent={this._onEndEditingStringEvent}
@@ -2367,6 +2364,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
                   fontSize={preferences.values.eventsSheetZoomLevel}
                   preferences={preferences}
                   tutorials={tutorials}
+                  highlightedSearchText={this.state.globalSearchText}
                   highlightedAiGeneratedEventIds={
                     highlightedAiGeneratedEventIds
                   }

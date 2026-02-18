@@ -77,7 +77,6 @@ export const NoProjectOpen = (): React.Node => {
                   )}
                   onRenameExternalEvents={action('onRenameExternalEvents')}
                   onOpenResources={action('onOpenResources')}
-                  onOpenGlobalSearch={action('onOpenGlobalSearch')}
                   onReloadEventsFunctionsExtensions={action(
                     'onReloadEventsFunctionsExtensions'
                   )}
@@ -154,7 +153,6 @@ export const ProjectOpen = (): React.Node => {
                   )}
                   onRenameExternalEvents={action('onRenameExternalEvents')}
                   onOpenResources={action('onOpenResources')}
-                  onOpenGlobalSearch={action('onOpenGlobalSearch')}
                   onReloadEventsFunctionsExtensions={action(
                     'onReloadEventsFunctionsExtensions'
                   )}
