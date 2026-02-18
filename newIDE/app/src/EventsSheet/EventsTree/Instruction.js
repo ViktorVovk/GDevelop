@@ -109,7 +109,31 @@ type Props = {|
   projectScopedContainersAccessor: ProjectScopedContainersAccessor,
 
   id: string,
+  highlightedSearchText?: ?string,
 |};
+
+const escapeRegExp = (text: string): string =>
+  text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const renderHighlightedText = (
+  text: string,
+  highlightedSearchText: ?string
+): React.Node => {
+  const query = highlightedSearchText ? highlightedSearchText.trim() : '';
+  if (!query) return text;
+
+  const regex = new RegExp(`(${escapeRegExp(query)})`, 'ig');
+  const parts = text.split(regex);
+  return parts.map((part, index) =>
+    index % 2 === 1 ? (
+      <span key={`${part}-${index}`} className="global-search-text-match">
+        {part}
+      </span>
+    ) : (
+      <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
+    )
+  );
+};
 
 const shouldNotBeValidated = ({
   value,
@@ -288,7 +312,12 @@ const Instruction = (props: Props): React.Node => {
               metadata.isHidden()
                 ? '[DEPRECATED] '
                 : '';
-            return <span key={i}>{deprecatedPrefix + value}</span>;
+            return (
+              <span key={i}>
+                {deprecatedPrefix}
+                {renderHighlightedText(value, props.highlightedSearchText)}
+              </span>
+            );
           }
 
           const parameterMetadata = metadata.getParameter(parameterIndex);
@@ -403,6 +432,7 @@ const Instruction = (props: Props): React.Node => {
                 useAssignmentOperators,
                 projectScopedContainersAccessor:
                   props.projectScopedContainersAccessor,
+                highlightedSearchText: props.highlightedSearchText,
               })}
             </span>
           );
@@ -634,6 +664,7 @@ const Instruction = (props: Props): React.Node => {
                       props.projectScopedContainersAccessor
                     }
                     idPrefix={props.id}
+                    highlightedSearchText={props.highlightedSearchText}
                   />
                 )}
               </React.Fragment>
