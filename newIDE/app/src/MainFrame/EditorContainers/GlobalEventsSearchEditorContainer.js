@@ -40,34 +40,23 @@ const styles = {
   scrollableContent: {
     flex: 1,
     overflow: 'auto',
-  },
-  searchArea: {
     padding: '12px 16px 0 16px',
   },
   optionsRow: {
     display: 'flex',
     alignItems: 'center',
     flexWrap: 'wrap',
-    marginTop: 4,
+    marginTop: 8,
     gap: 8,
-    padding: '4px 4px',
   },
   searchInLabel: {
     opacity: 0.7,
-    marginLeft: 4,
-    marginRight: 2,
   },
   searchButton: {
     marginLeft: 8,
   },
   resultsArea: {
-    padding: '0 12px 16px 12px',
-  },
-  summaryBar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '10px 8px 6px 8px',
+    marginTop: '8px',
   },
   searchQueryHeader: {
     display: 'flex',
@@ -77,18 +66,23 @@ const styles = {
     marginBottom: 8,
     borderRadius: 4,
     border: '1px solid var(--event-sheet-conditions-border-color, #e2e2e2)',
-    background: 'var(--event-sheet-conditions-background-color, #f1f2f2)',
+    background: 'var(--event-sheet-conditions-background-color, #f1f2f209)',
   },
   searchQueryLabel: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     textTransform: 'uppercase',
     opacity: 0.6,
     letterSpacing: '0.05em',
+    fontFamily: 'var(--gdevelop-classic-font-family)',
   },
   searchQueryText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 600,
+    fontFamily: 'var(--gdevelop-classic-font-family)',
+    display: 'flex',
+    flex: 1,
+    justifyContent: 'space-between',
   },
   // Accordion header
   groupHeaderContent: {
@@ -113,6 +107,13 @@ const styles = {
     flexShrink: 0,
   },
   // Event-sheet-like row styles (non-pseudo parts)
+  accordionGroupContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
+    width: '100%',
+    gap: '8px',
+  },
   eventRowIndicator: {
     width: 4,
     flexShrink: 0,
@@ -454,10 +455,19 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
     group: GlobalSearchGroup,
     focusedEventPath: Array<number>
   ) => {
-    if (
-      group.targetType === 'layout' ||
-      group.targetType === 'external-events'
-    ) {
+    if (group.targetType === 'extension') {
+      this.props.onNavigateToEventFromGlobalSearch({
+        locationType: 'extension',
+        name: group.extensionName,
+        eventPath: focusedEventPath,
+        highlightedEventPaths: deduplicateEventPaths(group.matches),
+        searchText: this.state.lastSearchText,
+        extensionName: group.extensionName,
+        functionName: group.functionName,
+        behaviorName: group.behaviorName || undefined,
+        objectName: group.objectName || undefined,
+      });
+    } else {
       this.props.onNavigateToEventFromGlobalSearch({
         locationType: group.targetType,
         name: group.name,
@@ -465,21 +475,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
         highlightedEventPaths: deduplicateEventPaths(group.matches),
         searchText: this.state.lastSearchText,
       });
-      return;
     }
-
-    // For extensions/prefabs
-    this.props.onOpenEventsFunctionsExtension(
-      group.extensionName,
-      group.functionName,
-      group.behaviorName || undefined,
-      group.objectName || undefined,
-      {
-        eventPath: focusedEventPath,
-        highlightedEventPaths: deduplicateEventPaths(group.matches),
-        searchText: this.state.lastSearchText,
-      }
-    );
   };
 
   _renderMatchRow = (
@@ -487,7 +483,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
     group: GlobalSearchGroup,
     index: number,
     eventRowClassName: string
-  ) => {
+  ): React.MixedElement => {
     const context = getMatchContext(match);
     const parsed = parseMatchContext(context);
     const searchText = this.state.lastSearchText;
@@ -537,6 +533,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
             },
           }));
         }}
+        noMargin
       >
         <AccordionHeader
           actions={[
@@ -588,7 +585,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
     );
   };
 
-  render() {
+  render(): null | React.MixedElement {
     const { project } = this.props;
 
     if (!project) {
@@ -606,9 +603,9 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
       <div style={styles.container}>
         <Background maxWidth>
           <div style={styles.scrollableContent}>
-            <div style={styles.searchArea}>
+            <div>
               <Line noMargin expand>
-                <Column expand>
+                <Column expand noMargin>
                   <SearchBar
                     value={inputs.searchText}
                     onChange={searchText =>
@@ -733,27 +730,25 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
                   </Text>
                 </div>
               ) : (
-                <>
+                <div style={styles.accordionGroupContainer}>
                   <div style={styles.searchQueryHeader}>
                     <span style={styles.searchQueryLabel}>
                       <Trans>Search:</Trans>
                     </span>
                     <span style={styles.searchQueryText}>
-                      "{this.state.lastSearchText}"
+                      <span>"{this.state.lastSearchText}"</span>
+                      <Text noMargin size="body-small" color="secondary">
+                        <Trans>
+                          Found {totalMatchCount}{' '}
+                          {totalMatchCount === 1 ? 'match' : 'matches'} in{' '}
+                          {groups.length}{' '}
+                          {groups.length === 1 ? 'event sheet' : 'event sheets'}
+                        </Trans>
+                      </Text>
                     </span>
                   </div>
-                  <div style={styles.summaryBar}>
-                    <Text noMargin size="body-small" color="secondary">
-                      <Trans>
-                        Found {totalMatchCount}{' '}
-                        {totalMatchCount === 1 ? 'match' : 'matches'} in{' '}
-                        {groups.length}{' '}
-                        {groups.length === 1 ? 'event sheet' : 'event sheets'}
-                      </Trans>
-                    </Text>
-                  </div>
                   {groups.map(group => this._renderGroup(group))}
-                </>
+                </div>
               )}
             </div>
           </div>

@@ -2799,22 +2799,8 @@ const MainFrame = (props: Props): React.MixedElement => {
       name: string,
       initiallyFocusedFunctionName?: ?string,
       initiallyFocusedBehaviorName?: ?string,
-      initiallyFocusedObjectName?: ?string,
-      navigationOptions?: ?{|
-        eventPath: Array<number>,
-        highlightedEventPaths: Array<Array<number>>,
-        searchText: string,
-      |}
+      initiallyFocusedObjectName?: ?string
     ) => {
-      if (navigationOptions) {
-        clearGlobalSearchHighlightsInOpenedEditors();
-        setPendingEventNavigation({
-          name,
-          locationType: 'extension',
-          eventPath: navigationOptions.eventPath,
-        });
-      }
-
       setState(state => ({
         ...state,
         // $FlowFixMe[incompatible-type]
@@ -2831,40 +2817,8 @@ const MainFrame = (props: Props): React.MixedElement => {
           },
         }),
       }));
-
-      if (navigationOptions) {
-        setTimeout(() => {
-          setState(latestState => {
-            for (const paneIdentifier in latestState.editorTabs.panes) {
-              const pane = latestState.editorTabs.panes[paneIdentifier];
-              for (const editor of pane.editors) {
-                const editorRef: any = editor.editorRef;
-                if (
-                  editor.kind === 'events functions extension' &&
-                  editor.projectItemName === name &&
-                  editorRef &&
-                  editorRef.setGlobalSearchResults
-                ) {
-                  editorRef.setGlobalSearchResults(
-                    navigationOptions.highlightedEventPaths,
-                    navigationOptions.eventPath,
-                    navigationOptions.searchText
-                  );
-                  return latestState;
-                }
-              }
-            }
-            return latestState;
-          });
-        }, 450);
-      }
     },
-    [
-      currentProject,
-      setState,
-      getEditorOpeningOptions,
-      clearGlobalSearchHighlightsInOpenedEditors,
-    ]
+    [currentProject, setState, getEditorOpeningOptions]
   );
 
   const openResources = React.useCallback(
@@ -2906,14 +2860,22 @@ const MainFrame = (props: Props): React.MixedElement => {
       eventPath,
       highlightedEventPaths,
       searchText,
+      extensionName,
+      functionName,
+      behaviorName,
+      objectName,
     }: {|
-      locationType: 'layout' | 'external-events',
+      locationType: 'layout' | 'external-events' | 'extension',
       name: string,
       eventPath: Array<number>,
       highlightedEventPaths: Array<Array<number>>,
       searchText: string,
+      extensionName?: string,
+      functionName?: string,
+      behaviorName?: string,
+      objectName?: string,
     |}) => {
-      clearGlobalSearchHighlightsInOpenedEditors();
+      clearGlobalSearchHighlightsInEditorTabs(state.editorTabs);
       setPendingEventNavigation({
         name,
         locationType,
@@ -2926,13 +2888,24 @@ const MainFrame = (props: Props): React.MixedElement => {
           openSceneEditor: false,
           focusWhenOpened: 'events',
         });
-      } else {
+      } else if (locationType === 'external-events') {
         openExternalEvents(name);
+      } else if (locationType === 'extension') {
+        openEventsFunctionsExtension(
+          extensionName || name,
+          functionName,
+          behaviorName,
+          objectName
+        );
       }
 
       setTimeout(() => {
         const editorKind =
-          locationType === 'layout' ? 'layout events' : 'external events';
+          locationType === 'layout'
+            ? 'layout events'
+            : locationType === 'external-events'
+            ? 'external events'
+            : 'events functions extension';
         setState(latestState => {
           for (const paneIdentifier in latestState.editorTabs.panes) {
             const pane = latestState.editorTabs.panes[paneIdentifier];
@@ -2958,11 +2931,13 @@ const MainFrame = (props: Props): React.MixedElement => {
       }, 450);
     },
     [
-      clearGlobalSearchHighlightsInOpenedEditors,
+      clearGlobalSearchHighlightsInEditorTabs,
       openExternalEvents,
+      openEventsFunctionsExtension,
       openLayout,
       setPendingEventNavigation,
       setState,
+      state.editorTabs,
     ]
   );
 
