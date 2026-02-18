@@ -2841,6 +2841,7 @@ const MainFrame = (props: Props): React.MixedElement => {
         ...state,
         editorTabs: openEditorTab(
           state.editorTabs,
+          // $FlowFixMe[incompatible-type]
           getEditorOpeningOptions({ kind: 'global-search', name: '' })
         ),
       }));

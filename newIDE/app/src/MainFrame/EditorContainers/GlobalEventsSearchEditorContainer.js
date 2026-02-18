@@ -350,7 +350,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
   RenderEditorContainerProps,
   State
 > {
-  state = {
+  state: State = {
     inputs: {
       searchText: '',
       matchCase: false,
@@ -439,7 +439,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
     if (!project) return;
 
     const groups = scanProjectForGlobalEventsSearch(project, this.state.inputs);
-    const expandedGroups = {};
+    const expandedGroups: { [string]: boolean } = {};
     groups.forEach(group => {
       expandedGroups[group.id] = true;
     });
@@ -518,7 +518,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
     );
   };
 
-  _renderGroup = (group: GlobalSearchGroup) => {
+  _renderGroup = (group: GlobalSearchGroup): React.Node => {
     const totalMatches = group.matches.length;
 
     return (
@@ -618,6 +618,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
                   />
                 </Column>
                 <RaisedButton
+                  // $FlowFixMe[incompatible-type]
                   style={styles.searchButton}
                   disabled={!hasSearchText}
                   primary
@@ -641,6 +642,7 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
                   noMargin
                   size="body-small"
                   color="secondary"
+                  // $FlowFixMe[incompatible-type]
                   style={styles.searchInLabel}
                 >
                   <Trans>Search in:</Trans>
@@ -760,4 +762,4 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
 
 export const renderGlobalEventsSearchEditorContainer = (
   props: RenderEditorContainerPropsWithRef
-) => <GlobalEventsSearchEditorContainer {...props} />;
+): React.Node => <GlobalEventsSearchEditorContainer {...props} />;
