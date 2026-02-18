@@ -831,7 +831,8 @@ const MainFrame = (props: Props): React.MixedElement => {
           const editorRef: any = editor.editorRef;
           if (
             (editor.kind === 'layout events' ||
-              editor.kind === 'external events') &&
+              editor.kind === 'external events' ||
+              editor.kind === 'events functions extension') &&
             editorRef &&
             editorRef.clearGlobalSearchResults
           ) {

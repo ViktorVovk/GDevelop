@@ -321,17 +321,30 @@ const Instruction = (props: Props) => {
           let expressionIsValid = true;
           let hasDeprecationWarning = false;
           if (!shouldNotBeValidated({ value, parameterType })) {
-            const validationResult = gd.InstructionValidator.validateParameter(
-              platform,
-              projectScopedContainers,
-              instruction,
-              metadata,
-              parameterIndex,
-              value
-            );
-            expressionIsValid = validationResult.isValid();
-            if (showDeprecatedInstructionWarning !== 'no') {
-              hasDeprecationWarning = validationResult.hasDeprecationWarning();
+            // Try to use validateParameter if available (newer GDevelop versions)
+            if (gd.InstructionValidator.validateParameter) {
+              const validationResult = gd.InstructionValidator.validateParameter(
+                platform,
+                projectScopedContainers,
+                instruction,
+                metadata,
+                parameterIndex,
+                value
+              );
+              expressionIsValid = validationResult.isValid();
+              if (showDeprecatedInstructionWarning !== 'no') {
+                hasDeprecationWarning = validationResult.hasDeprecationWarning();
+              }
+            } else {
+              // Fallback to isParameterValid (older GDevelop versions)
+              expressionIsValid = gd.InstructionValidator.isParameterValid(
+                platform,
+                projectScopedContainers,
+                instruction,
+                metadata,
+                parameterIndex,
+                value
+              );
             }
             // TODO Move this code inside `InstructionValidator.isParameterValid`
             if (
