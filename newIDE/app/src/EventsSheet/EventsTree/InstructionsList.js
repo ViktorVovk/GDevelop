@@ -106,11 +106,12 @@ export default function InstructionsList({
   projectScopedContainersAccessor,
   idPrefix,
   highlightedSearchText,
-}: Props) {
+}: Props): React.Node {
   const [canPaste, setCanPaste] = React.useState(false);
 
   const addNewInstruction = React.useCallback(
     () => {
+      // $FlowFixMe[constant-condition]
       if (onAddNewInstruction)
         onAddNewInstruction({
           instrsList,
