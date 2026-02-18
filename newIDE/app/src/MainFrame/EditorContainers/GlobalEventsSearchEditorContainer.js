@@ -19,6 +19,7 @@ import {
   type GlobalSearchGroup,
   type GlobalSearchMatch,
 } from '../../Utils/EventsGlobalSearchScanner';
+import { highlightSearchText } from '../../Utils/HighlightSearchText';
 import type {
   RenderEditorContainerProps,
   RenderEditorContainerPropsWithRef,
@@ -274,9 +275,6 @@ const deduplicateEventPaths = (
 const getMatchContext = (match: any): string =>
   match.context || `Match at event path ${getEventPathLabel(match.eventPath)}`;
 
-const escapeRegExp = (text: string): string =>
-  text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 type ParsedContext = {|
   type: 'standard' | 'condition-only' | 'action-only' | 'other',
   conditionText: string,
@@ -314,23 +312,6 @@ const parseMatchContext = (text: string): ParsedContext => {
   }
 
   return { type: 'other', conditionText: text, actionText: '' };
-};
-
-const renderHighlightedText = (text: string, query: string): React.Node => {
-  const trimmedQuery = query.trim();
-  if (!trimmedQuery) return text;
-
-  const regex = new RegExp(`(${escapeRegExp(trimmedQuery)})`, 'ig');
-  const parts = text.split(regex);
-  return parts.map((part, index) =>
-    index % 2 === 1 ? (
-      <span key={`${part}-${index}`} style={styles.searchMatchText}>
-        {part}
-      </span>
-    ) : (
-      <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
-    )
-  );
 };
 
 const getGroupIcon = (group: GlobalSearchGroup): React.Node => {
@@ -505,12 +486,16 @@ export class GlobalEventsSearchEditorContainer extends React.Component<
         <div style={styles.eventRowColumns}>
           <div style={styles.eventRowConditions}>
             <span style={styles.eventRowText}>
-              {renderHighlightedText(parsed.conditionText, searchText)}
+              {highlightSearchText(parsed.conditionText, searchText, {
+                style: styles.searchMatchText,
+              })}
             </span>
           </div>
           <div style={styles.eventRowActions}>
             <span style={styles.eventRowText}>
-              {renderHighlightedText(parsed.actionText, searchText)}
+              {highlightSearchText(parsed.actionText, searchText, {
+                style: styles.searchMatchText,
+              })}
             </span>
           </div>
         </div>

@@ -13,6 +13,7 @@ import {
 import { Trans } from '@lingui/macro';
 import { nameAndIconContainer } from '../EventsTree/ClassNames';
 import InAppTutorialContext from '../../InAppTutorial/InAppTutorialContext';
+import { highlightSearchText } from '../../Utils/HighlightSearchText';
 
 const gd: libGDevelop = global.gd;
 
@@ -203,26 +204,6 @@ export default (React.forwardRef<ParameterFieldProps, ParameterFieldInterface>(
   +ref?: React.RefSetter<ParameterFieldInterface>,
 }>);
 
-const escapeRegExpForHighlight = (text: string): string =>
-  text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-const highlightObjectText = (text: string, searchText: ?string): React.Node => {
-  const query = searchText ? searchText.trim() : '';
-  if (!query) return text;
-
-  const regex = new RegExp(`(${escapeRegExpForHighlight(query)})`, 'ig');
-  const parts = text.split(regex);
-  return parts.map((part, index) =>
-    index % 2 === 1 ? (
-      <span key={`${part}-${index}`} className="global-search-text-match">
-        {part}
-      </span>
-    ) : (
-      <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
-    )
-  );
-};
-
 export const renderInlineObjectWithThumbnail = ({
   value,
   parameterMetadata,
@@ -245,10 +226,10 @@ export const renderInlineObjectWithThumbnail = ({
     >
       {renderObjectThumbnail(value)}
       {expressionIsValid ? (
-        highlightObjectText(value, highlightedSearchText)
+        highlightSearchText(value, highlightedSearchText)
       ) : (
         <InvalidParameterValue>
-          {highlightObjectText(value, highlightedSearchText)}
+          {highlightSearchText(value, highlightedSearchText)}
         </InvalidParameterValue>
       )}
     </span>

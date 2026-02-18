@@ -21,6 +21,7 @@ import SemiControlledAutoComplete, {
 } from '../../UI/SemiControlledAutoComplete';
 import { TextFieldWithButtonLayout } from '../../UI/Layout';
 import { type ParameterInlineRendererProps } from './ParameterInlineRenderer.flow';
+import { highlightSearchText } from '../../Utils/HighlightSearchText';
 import ShareExternal from '../../UI/CustomSvgIcons/ShareExternal';
 import SelectField from '../../UI/SelectField';
 import SelectOption from '../../UI/SelectOption';
@@ -518,29 +519,6 @@ export default (React.forwardRef<Props, VariableFieldInterface>(
   +ref?: React.RefSetter<VariableFieldInterface>,
 }>);
 
-const escapeRegExpForHighlight = (text: string): string =>
-  text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-const highlightVariableText = (
-  text: string,
-  searchText: ?string
-): React.Node => {
-  const query = searchText ? searchText.trim() : '';
-  if (!query) return text;
-
-  const regex = new RegExp(`(${escapeRegExpForHighlight(query)})`, 'ig');
-  const parts = text.split(regex);
-  return parts.map((part, index) =>
-    index % 2 === 1 ? (
-      <span key={`${part}-${index}`} className="global-search-text-match">
-        {part}
-      </span>
-    ) : (
-      <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
-    )
-  );
-};
-
 export const renderVariableWithIcon = (
   {
     value,
@@ -594,7 +572,7 @@ export const renderVariableWithIcon = (
             [icon]: true,
           })}
         />
-        {highlightVariableText(value, highlightedSearchText)}
+        {highlightSearchText(value, highlightedSearchText)}
       </IconAndNameContainer>
     </span>
   );

@@ -47,6 +47,7 @@ import { enumerateParametersUsableInExpressions } from '../ParameterFields/Enume
 import { getFunctionNameFromType } from '../../EventsFunctionsExtensionsLoader';
 import { ExtensionStoreContext } from '../../AssetStore/ExtensionStore/ExtensionStoreContext';
 import Warning from '../../UI/CustomSvgIcons/Warning';
+import { highlightSearchText } from '../../Utils/HighlightSearchText';
 
 const gd: libGDevelop = global.gd;
 
@@ -111,29 +112,6 @@ type Props = {|
   id: string,
   highlightedSearchText?: ?string,
 |};
-
-const escapeRegExp = (text: string): string =>
-  text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-const renderHighlightedText = (
-  text: string,
-  highlightedSearchText: ?string
-): React.Node => {
-  const query = highlightedSearchText ? highlightedSearchText.trim() : '';
-  if (!query) return text;
-
-  const regex = new RegExp(`(${escapeRegExp(query)})`, 'ig');
-  const parts = text.split(regex);
-  return parts.map((part, index) =>
-    index % 2 === 1 ? (
-      <span key={`${part}-${index}`} className="global-search-text-match">
-        {part}
-      </span>
-    ) : (
-      <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
-    )
-  );
-};
 
 const shouldNotBeValidated = ({
   value,
@@ -315,7 +293,7 @@ const Instruction = (props: Props): React.Node => {
             return (
               <span key={i}>
                 {deprecatedPrefix}
-                {renderHighlightedText(value, props.highlightedSearchText)}
+                {highlightSearchText(value, props.highlightedSearchText)}
               </span>
             );
           }

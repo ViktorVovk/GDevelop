@@ -9,6 +9,7 @@ import {
   type FieldFocusFunction,
 } from './ParameterFieldCommons';
 import { type ParameterInlineRendererProps } from './ParameterInlineRenderer.flow';
+import { highlightSearchText } from '../../Utils/HighlightSearchText';
 
 export default (React.forwardRef<ParameterFieldProps, ParameterFieldInterface>(
   function DefaultField(props: ParameterFieldProps, ref) {
@@ -45,26 +46,6 @@ export default (React.forwardRef<ParameterFieldProps, ParameterFieldInterface>(
   +ref?: React.RefSetter<ParameterFieldInterface>,
 }>);
 
-const escapeRegExp = (text: string): string =>
-  text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-const highlightText = (text: string, searchText: ?string): React.Node => {
-  const query = searchText ? searchText.trim() : '';
-  if (!query) return text;
-
-  const regex = new RegExp(`(${escapeRegExp(query)})`, 'ig');
-  const parts = text.split(regex);
-  return parts.map((part, index) =>
-    index % 2 === 1 ? (
-      <span key={`${part}-${index}`} className="global-search-text-match">
-        {part}
-      </span>
-    ) : (
-      <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
-    )
-  );
-};
-
 export const renderInlineDefaultField = ({
   value,
   expressionIsValid,
@@ -81,16 +62,16 @@ export const renderInlineDefaultField = ({
   if (!expressionIsValid) {
     return (
       <InvalidParameterValue>
-        {highlightText(value, highlightedSearchText)}
+        {highlightSearchText(value, highlightedSearchText)}
       </InvalidParameterValue>
     );
   }
   if (hasDeprecationWarning) {
     return (
       <DeprecatedParameterValue>
-        {highlightText(value, highlightedSearchText)}
+        {highlightSearchText(value, highlightedSearchText)}
       </DeprecatedParameterValue>
     );
   }
-  return highlightText(value, highlightedSearchText);
+  return highlightSearchText(value, highlightedSearchText);
 };
