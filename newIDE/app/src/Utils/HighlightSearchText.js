@@ -13,13 +13,18 @@ export const escapeRegExpForSearch = (text: string): string =>
 type HighlightSpanProps = {|
   className?: string,
   style?: { +[key: string]: string | number },
+  matchCase?: boolean,
 |};
 
 /**
- * Splits text by the search query (case-insensitive) and wraps each match
- * in a span for highlighting. Uses className "global-search-text-match" by
- * default (styled in EventsSheet). Pass spanProps to use custom styling
- * (e.g. inline styles in contexts where the CSS class is not available).
+ * Splits text by the search query and wraps each match in a span for highlighting.
+ * Uses the same case-sensitivity as C++ EventsRefactorer::SearchInEvents:
+ * - matchCase true: exact substring match (case-sensitive)
+ * - matchCase false: Unicode case-insensitive match (RegExp 'i' flag, equivalent
+ *   to C++ FindCaseInsensitive / utf8proc UTF8PROC_CASEFOLD)
+ * Uses className "global-search-text-match" by default (styled in EventsSheet).
+ * Pass spanProps to use custom styling (e.g. inline styles in contexts where the
+ * CSS class is not available).
  */
 export const highlightSearchText = (
   text: string,
@@ -29,11 +34,14 @@ export const highlightSearchText = (
   const query = searchText ? searchText.trim() : '';
   if (!query) return text;
 
-  const regex = new RegExp(`(${escapeRegExpForSearch(query)})`, 'ig');
+  const matchCase = spanProps?.matchCase ?? false;
+  const flags = matchCase ? 'g' : 'gi';
+  const regex = new RegExp(`(${escapeRegExpForSearch(query)})`, flags);
   const parts = text.split(regex);
+  const { matchCase: _matchCase, ...spanPropsForDom } = spanProps || {};
   const props =
     spanProps && (spanProps.className != null || spanProps.style != null)
-      ? spanProps
+      ? spanPropsForDom
       : { className: GLOBAL_SEARCH_MATCH_CLASS_NAME };
 
   return parts.map((part, index) =>

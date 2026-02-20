@@ -68,6 +68,7 @@ type Props = {|
 
   idPrefix: string,
   highlightedSearchText?: ?string,
+  highlightedSearchMatchCase?: boolean,
 |};
 
 const DropTarget = makeDropTarget<{
@@ -106,6 +107,7 @@ export default function InstructionsList({
   projectScopedContainersAccessor,
   idPrefix,
   highlightedSearchText,
+  highlightedSearchMatchCase,
 }: Props): React.Node {
   const [canPaste, setCanPaste] = React.useState(false);
 
@@ -184,6 +186,7 @@ export default function InstructionsList({
         projectScopedContainersAccessor={projectScopedContainersAccessor}
         id={`${idPrefix}-${areConditions ? 'condition' : 'action'}-${i}`}
         highlightedSearchText={highlightedSearchText}
+        highlightedSearchMatchCase={highlightedSearchMatchCase}
       />
     );
   });

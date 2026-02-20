@@ -16,7 +16,7 @@ type RenderMatchRowProps = {|
 
 export const RenderMatchRow: React.ComponentType<RenderMatchRowProps> = React.memo<RenderMatchRowProps>(
   ({ match, group }): React.MixedElement => {
-    const { searchText, navigateToMatch } = React.useContext(
+    const { searchText, navigateToMatch, matchCase } = React.useContext(
       GlobalSearchContextProvider
     );
     const classes = useEventRowStyles();
@@ -48,6 +48,7 @@ export const RenderMatchRow: React.ComponentType<RenderMatchRowProps> = React.me
             <span style={styles.eventRowText}>
               {highlightSearchText(parsed.conditionText, searchText, {
                 style: styles.searchMatchText,
+                matchCase,
               })}
             </span>
           </div>
@@ -55,6 +56,7 @@ export const RenderMatchRow: React.ComponentType<RenderMatchRowProps> = React.me
             <span style={styles.eventRowText}>
               {highlightSearchText(parsed.actionText, searchText, {
                 style: styles.searchMatchText,
+                matchCase,
               })}
             </span>
           </div>

@@ -214,6 +214,7 @@ export default class ForEachEvent extends React.Component<
               }
               idPrefix={this.props.idPrefix}
               highlightedSearchText={this.props.highlightedSearchText}
+              highlightedSearchMatchCase={this.props.highlightedSearchMatchCase}
             />
           )}
           renderActionsList={({ className }) => (
@@ -252,6 +253,7 @@ export default class ForEachEvent extends React.Component<
               }
               idPrefix={this.props.idPrefix}
               highlightedSearchText={this.props.highlightedSearchText}
+              highlightedSearchMatchCase={this.props.highlightedSearchMatchCase}
             />
           )}
         />

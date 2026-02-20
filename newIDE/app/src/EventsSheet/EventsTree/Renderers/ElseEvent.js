@@ -125,6 +125,7 @@ export default class ElseEvent extends React.Component<
               }
               idPrefix={this.props.idPrefix}
               highlightedSearchText={this.props.highlightedSearchText}
+              highlightedSearchMatchCase={this.props.highlightedSearchMatchCase}
             />
           )}
           renderActionsList={({ className }) => (
@@ -159,6 +160,7 @@ export default class ElseEvent extends React.Component<
               }
               idPrefix={this.props.idPrefix}
               highlightedSearchText={this.props.highlightedSearchText}
+              highlightedSearchMatchCase={this.props.highlightedSearchMatchCase}
             />
           )}
         />

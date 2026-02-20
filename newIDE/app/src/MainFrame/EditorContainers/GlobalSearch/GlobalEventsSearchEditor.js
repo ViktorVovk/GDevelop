@@ -40,8 +40,8 @@ export const GlobalEventsSearchEditor = ({
     setSearch,
     checkBoxesState,
     setCheckBoxesState,
-    lastSearchText,
-    setLastSearchText,
+    frezeSearchedState,
+    setFrezeSearchedState,
     hasSearched,
     setHasSearched,
   } = useSearchForm();
@@ -66,8 +66,8 @@ export const GlobalEventsSearchEditor = ({
       ...checkBoxesState,
     });
     setGroups(groups);
-    setLastSearchText(search);
     setHasSearched(true);
+    setFrezeSearchedState({ ...checkBoxesState, searchText: search });
   };
 
   const navigateToMatch = React.useCallback(
@@ -77,7 +77,8 @@ export const GlobalEventsSearchEditor = ({
         name: group.name || '',
         eventPath: focusedEventPath,
         highlightedEventPaths: deduplicateEventPaths(group.matches),
-        searchText: lastSearchText,
+        searchText: frezeSearchedState.searchText,
+        matchCase: frezeSearchedState.matchCase,
       };
 
       if (group.targetType === 'extension') {
@@ -94,15 +95,24 @@ export const GlobalEventsSearchEditor = ({
 
       onNavigateToEventFromGlobalSearch(params);
     },
-    [lastSearchText, onNavigateToEventFromGlobalSearch]
+    [
+      frezeSearchedState.searchText,
+      frezeSearchedState.matchCase,
+      onNavigateToEventFromGlobalSearch,
+    ]
   );
 
   const globalSearchContextValue = React.useMemo<GlobalSearchContextType>(
     () => ({
-      searchText: lastSearchText,
       navigateToMatch,
+      searchText: frezeSearchedState.searchText,
+      matchCase: frezeSearchedState.matchCase,
     }),
-    [lastSearchText, navigateToMatch]
+    [
+      navigateToMatch,
+      frezeSearchedState.matchCase,
+      frezeSearchedState.searchText,
+    ]
   );
 
   const hasSearchText = !!search.trim();
@@ -215,7 +225,7 @@ export const GlobalEventsSearchEditor = ({
                     <Trans>Search:</Trans>
                   </span>
                   <span style={styles.searchQueryText}>
-                    <span>"{lastSearchText}"</span>
+                    <span>"{frezeSearchedState.searchText}"</span>
                     <Text noMargin size="body-small" color="secondary">
                       <Trans>
                         Found {totalMatchCount}{' '}

@@ -61,6 +61,7 @@ export type NavigateToEventFromGlobalSearchParams = {|
   eventPath: Array<number>,
   highlightedEventPaths: Array<Array<number>>,
   searchText: string,
+  matchCase?: boolean,
   extensionName?: string,
   functionName?: string,
   behaviorName?: string,

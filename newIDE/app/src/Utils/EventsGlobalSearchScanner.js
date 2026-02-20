@@ -105,7 +105,7 @@ const searchInEventsList = (
     inputs.searchInActions,
     inputs.searchInEventStrings,
     inputs.searchInEventSentences
-  );
+  ).clone();
 
   // Phase 1: Extract lightweight data from the C++ vector.
   // Avoid any heavy C++ calls (like getEventContext) while the vector is alive,
@@ -277,44 +277,52 @@ const getEventContext = (
       return target ? truncate(`Link to: ${target}`) : 'Link event';
     }
     case 'BuiltinCommonInstructions::Standard':
+      const standartEvent = gd.asStandardEvent(event);
       return getEventContextFromConditionsAndActions(
-        gd.asStandardEvent(event).getConditions(),
-        gd.asStandardEvent(event).getActions(),
+        standartEvent.getConditions(),
+        standartEvent.getActions(),
         searchText,
         matchCase
       );
     case 'BuiltinCommonInstructions::Else':
+      const elseEvent = gd.asElseEvent(event);
       return getEventContextFromConditionsAndActions(
-        gd.asElseEvent(event).getConditions(),
-        gd.asElseEvent(event).getActions(),
+        elseEvent.getConditions(),
+        elseEvent.getActions(),
         searchText,
         matchCase
       );
     case 'BuiltinCommonInstructions::While':
+      const whileEvent = gd.asWhileEvent(event);
       return getEventContextFromConditionsAndActions(
-        gd.asWhileEvent(event).getConditions(),
-        gd.asWhileEvent(event).getActions(),
+        whileEvent.getConditions(),
+        whileEvent.getActions(),
         searchText,
         matchCase
       );
     case 'BuiltinCommonInstructions::Repeat':
+      const repeatEvent = gd.asRepeatEvent(event);
       return getEventContextFromConditionsAndActions(
-        gd.asRepeatEvent(event).getConditions(),
-        gd.asRepeatEvent(event).getActions(),
+        repeatEvent.getConditions(),
+        repeatEvent.getActions(),
         searchText,
         matchCase
       );
     case 'BuiltinCommonInstructions::ForEach':
+      const forEachEvent = gd.asForEachEvent(event);
       return getEventContextFromConditionsAndActions(
-        gd.asForEachEvent(event).getConditions(),
-        gd.asForEachEvent(event).getActions(),
+        forEachEvent.getConditions(),
+        forEachEvent.getActions(),
         searchText,
         matchCase
       );
     case 'BuiltinCommonInstructions::ForEachChildVariable':
+      const eaasForEachChildVariableEventchEvent = gd.asForEachChildVariableEvent(
+        event
+      );
       return getEventContextFromConditionsAndActions(
-        gd.asForEachChildVariableEvent(event).getConditions(),
-        gd.asForEachChildVariableEvent(event).getActions(),
+        eaasForEachChildVariableEventchEvent.getConditions(),
+        eaasForEachChildVariableEventchEvent.getActions(),
         searchText,
         matchCase
       );
@@ -331,6 +339,89 @@ const pushIfMatches = (
   if (matches.length > 0) groups.push(createGroup(matches));
 };
 
+const scanFunctionContainer = ({
+  functionsContainer,
+  behaviorName,
+  objectName,
+  inputs,
+  groups,
+  extensionName,
+  extensionFullName,
+}: {|
+  functionsContainer: gdEventsFunctionsContainer,
+  behaviorName: ?string,
+  objectName: ?string,
+  inputs: GlobalSearchInputs,
+  groups: Array<GlobalSearchGroup>,
+  extensionName: string,
+  extensionFullName: string,
+|}) => {
+  mapFor(0, functionsContainer.getEventsFunctionsCount(), functionIndex => {
+    const eventsFunction = functionsContainer.getEventsFunctionAt(
+      functionIndex
+    );
+    const functionName = eventsFunction.getName();
+    const matches = searchInEventsList(eventsFunction.getEvents(), inputs);
+
+    pushIfMatches(
+      groups,
+      matches => ({
+        id: `extension:${extensionName}:${behaviorName || ''}:${objectName ||
+          ''}:${functionName}`,
+        label: behaviorName
+          ? `${extensionFullName} / ${behaviorName} / ${functionName}`
+          : objectName
+          ? `${extensionFullName} / ${objectName} / ${functionName}`
+          : `${extensionFullName} / ${functionName}`,
+        targetType: 'extension',
+        extensionName,
+        functionName,
+        behaviorName,
+        objectName,
+        matches,
+      }),
+      matches
+    );
+  });
+};
+
+const scanEvents = ({
+  project,
+  inputs,
+  groups,
+  where,
+}: {
+  project: gdProject,
+  inputs: GlobalSearchInputs,
+  groups: Array<GlobalSearchGroup>,
+  where: 'layout' | 'external-events',
+}) => {
+  const isLayouts = where === 'layout';
+  const count = project[
+    isLayouts ? 'getLayoutsCount' : 'getExternalEventsCount'
+  ]();
+
+  mapFor(0, count, index => {
+    const events = project[isLayouts ? 'getLayoutAt' : 'getExternalEventsAt'](
+      index
+    );
+    const name = events.getName();
+    const matches = searchInEventsList(events.getEvents(), inputs);
+    pushIfMatches(
+      groups,
+      // $FlowFixMe[incompatible-type]
+      matches => ({
+        id: `${where}:${name}`,
+        label: name,
+        targetType: where,
+        name,
+        matches,
+      }),
+      matches
+    );
+  });
+};
+
 export const scanProjectForGlobalEventsSearch = (
   project: gdProject,
   inputs: GlobalSearchInputs
@@ -339,39 +430,8 @@ export const scanProjectForGlobalEventsSearch = (
 
   if (!inputs.searchText.trim()) return groups;
 
-  mapFor(0, project.getLayoutsCount(), index => {
-    const layout = project.getLayoutAt(index);
-    const name = layout.getName();
-    const matches = searchInEventsList(layout.getEvents(), inputs);
-    pushIfMatches(
-      groups,
-      matches => ({
-        id: `layout:${name}`,
-        label: name,
-        targetType: 'layout',
-        name,
-        matches,
-      }),
-      matches
-    );
-  });
-
-  mapFor(0, project.getExternalEventsCount(), index => {
-    const externalEvents = project.getExternalEventsAt(index);
-    const name = externalEvents.getName();
-    const matches = searchInEventsList(externalEvents.getEvents(), inputs);
-    pushIfMatches(
-      groups,
-      matches => ({
-        id: `external-events:${name}`,
-        label: name,
-        targetType: 'external-events',
-        name,
-        matches,
-      }),
-      matches
-    );
-  });
+  scanEvents({ project, inputs, groups, where: 'layout' });
+  scanEvents({ project, inputs, groups, where: 'external-events' });
 
   mapFor(0, project.getEventsFunctionsExtensionsCount(), extensionIndex => {
     const extension = project.getEventsFunctionsExtensionAt(extensionIndex);
@@ -384,48 +444,14 @@ export const scanProjectForGlobalEventsSearch = (
     const extensionName = extension.getName();
     const extensionFullName = extension.getFullName() || extensionName;
 
-    const scanFunctionContainer = ({
-      functionsContainer,
-      behaviorName,
-      objectName,
-    }: {|
-      functionsContainer: gdEventsFunctionsContainer,
-      behaviorName: ?string,
-      objectName: ?string,
-    |}) => {
-      mapFor(0, functionsContainer.getEventsFunctionsCount(), functionIndex => {
-        const eventsFunction = functionsContainer.getEventsFunctionAt(
-          functionIndex
-        );
-        const functionName = eventsFunction.getName();
-        const matches = searchInEventsList(eventsFunction.getEvents(), inputs);
-
-        pushIfMatches(
-          groups,
-          matches => ({
-            id: `extension:${extensionName}:${behaviorName ||
-              ''}:${objectName || ''}:${functionName}`,
-            label: behaviorName
-              ? `${extensionFullName} / ${behaviorName} / ${functionName}`
-              : objectName
-              ? `${extensionFullName} / ${objectName} / ${functionName}`
-              : `${extensionFullName} / ${functionName}`,
-            targetType: 'extension',
-            extensionName,
-            functionName,
-            behaviorName,
-            objectName,
-            matches,
-          }),
-          matches
-        );
-      });
-    };
-
     scanFunctionContainer({
       functionsContainer: extension.getEventsFunctions(),
       behaviorName: null,
       objectName: null,
+      inputs,
+      groups,
+      extensionFullName,
+      extensionName,
     });
 
     const eventsBasedBehaviors = extension.getEventsBasedBehaviors();
@@ -435,6 +461,10 @@ export const scanProjectForGlobalEventsSearch = (
         functionsContainer: behavior.getEventsFunctions(),
         behaviorName: behavior.getName(),
         objectName: null,
+        inputs,
+        groups,
+        extensionFullName,
+        extensionName,
       });
     });
 
@@ -445,6 +475,10 @@ export const scanProjectForGlobalEventsSearch = (
         functionsContainer: object.getEventsFunctions(),
         behaviorName: null,
         objectName: object.getName(),
+        inputs,
+        groups,
+        extensionFullName,
+        extensionName,
       });
     });
   });

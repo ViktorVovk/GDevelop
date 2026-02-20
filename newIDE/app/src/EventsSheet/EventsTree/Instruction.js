@@ -111,6 +111,7 @@ type Props = {|
 
   id: string,
   highlightedSearchText?: ?string,
+  highlightedSearchMatchCase?: boolean,
 |};
 
 const shouldNotBeValidated = ({
@@ -293,7 +294,9 @@ const Instruction = (props: Props): React.Node => {
             return (
               <span key={i}>
                 {deprecatedPrefix}
-                {highlightSearchText(value, props.highlightedSearchText)}
+                {highlightSearchText(value, props.highlightedSearchText, {
+                  matchCase: props.highlightedSearchMatchCase,
+                })}
               </span>
             );
           }
@@ -411,6 +414,7 @@ const Instruction = (props: Props): React.Node => {
                 projectScopedContainersAccessor:
                   props.projectScopedContainersAccessor,
                 highlightedSearchText: props.highlightedSearchText,
+                highlightedSearchMatchCase: props.highlightedSearchMatchCase,
               })}
             </span>
           );
@@ -652,6 +656,9 @@ const Instruction = (props: Props): React.Node => {
                     }
                     idPrefix={props.id}
                     highlightedSearchText={props.highlightedSearchText}
+                    highlightedSearchMatchCase={
+                      props.highlightedSearchMatchCase
+                    }
                   />
                 )}
               </React.Fragment>

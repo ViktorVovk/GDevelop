@@ -224,6 +224,7 @@ type State = {|
   globalSearchResults: ?Array<gdBaseEvent>,
   globalSearchFocusOffset: ?number,
   globalSearchText: ?string,
+  globalSearchMatchCase: boolean,
   searchResults: ?Array<gdBaseEvent>,
   searchFocusOffset: ?number,
   navigationHighlightEvent: ?gdBaseEvent,
@@ -327,6 +328,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
     globalSearchResults: null,
     globalSearchFocusOffset: null,
     globalSearchText: null,
+    globalSearchMatchCase: false,
     searchResults: null,
     searchFocusOffset: null,
     navigationHighlightEvent: null,
@@ -434,7 +436,8 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
   setGlobalSearchResults = (
     eventPaths: Array<Array<number>>,
     focusedEventPath: ?Array<number>,
-    searchText?: ?string
+    searchText?: ?string,
+    matchCase?: boolean
   ) => {
     const eventsTree = this._eventsTree;
     const eventsByPtr = new Map<number, gdBaseEvent>();
@@ -465,6 +468,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
         globalSearchResults: resultEvents,
         globalSearchFocusOffset,
         globalSearchText: searchText || null,
+        globalSearchMatchCase: matchCase ?? false,
         navigationHighlightEvent: null,
       },
       () => {
@@ -485,6 +489,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
       globalSearchResults: null,
       globalSearchFocusOffset: null,
       globalSearchText: null,
+      globalSearchMatchCase: false,
     });
   };
 
@@ -2365,6 +2370,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
                   preferences={preferences}
                   tutorials={tutorials}
                   highlightedSearchText={this.state.globalSearchText}
+                  highlightedSearchMatchCase={this.state.globalSearchMatchCase}
                   highlightedAiGeneratedEventIds={
                     highlightedAiGeneratedEventIds
                   }
@@ -2595,7 +2601,8 @@ export type EventsSheetInterface = {|
   setGlobalSearchResults: (
     eventPaths: Array<Array<number>>,
     focusedEventPath: ?Array<number>,
-    searchText?: ?string
+    searchText?: ?string,
+    matchCase?: boolean
   ) => void,
   clearGlobalSearchResults: () => void,
 |};
@@ -2636,13 +2643,15 @@ const EventsSheet = (props, ref) => {
   const setGlobalSearchResults = (
     eventPaths: Array<Array<number>>,
     focusedEventPath: ?Array<number>,
-    searchText?: ?string
+    searchText?: ?string,
+    matchCase?: boolean
   ) => {
     if (component.current)
       component.current.setGlobalSearchResults(
         eventPaths,
         focusedEventPath,
-        searchText
+        searchText,
+        matchCase
       );
   };
   const clearGlobalSearchResults = () => {

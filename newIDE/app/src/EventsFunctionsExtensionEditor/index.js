@@ -279,13 +279,15 @@ export default class EventsFunctionsExtensionEditor extends React.Component<
   setGlobalSearchResults = (
     eventPaths: Array<Array<number>>,
     focusedEventPath: ?Array<number>,
-    searchText?: string
+    searchText?: string,
+    matchCase?: boolean
   ) => {
     if (this.editor) {
       this.editor.setGlobalSearchResults(
         eventPaths,
         focusedEventPath,
-        searchText
+        searchText,
+        matchCase
       );
     }
   };

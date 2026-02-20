@@ -28,6 +28,7 @@ export type ParameterInlineRendererProps = {|
   MissingParameterValue: () => React.Node,
   useAssignmentOperators: boolean,
   highlightedSearchText?: ?string,
+  highlightedSearchMatchCase?: boolean,
 |};
 
 /**

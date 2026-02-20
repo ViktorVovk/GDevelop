@@ -2861,6 +2861,7 @@ const MainFrame = (props: Props): React.MixedElement => {
       eventPath,
       highlightedEventPaths,
       searchText,
+      matchCase,
       extensionName,
       functionName,
       behaviorName,
@@ -2871,6 +2872,7 @@ const MainFrame = (props: Props): React.MixedElement => {
       eventPath: Array<number>,
       highlightedEventPaths: Array<Array<number>>,
       searchText: string,
+      matchCase?: boolean,
       extensionName?: string,
       functionName?: string,
       behaviorName?: string,
@@ -2921,7 +2923,8 @@ const MainFrame = (props: Props): React.MixedElement => {
                 editorRef.setGlobalSearchResults(
                   highlightedEventPaths,
                   eventPath,
-                  searchText
+                  searchText,
+                  matchCase
                 );
                 return latestState;
               }

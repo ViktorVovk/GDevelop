@@ -34,7 +34,10 @@ export const useSearchForm = (): UseSearchFormReturn => {
     includeStoreExtensions: false,
   });
 
-  const [lastSearchText, setLastSearchText] = React.useState('');
+  const [frezeSearchedState, setFrezeSearchedState] = React.useState({
+    ...checkBoxesState,
+    searchText: search,
+  });
   const [hasSearched, setHasSearched] = React.useState(false);
 
   return {
@@ -42,8 +45,8 @@ export const useSearchForm = (): UseSearchFormReturn => {
     setSearch,
     checkBoxesState,
     setCheckBoxesState,
-    lastSearchText,
-    setLastSearchText,
+    frezeSearchedState,
+    setFrezeSearchedState,
     hasSearched,
     setHasSearched,
   };

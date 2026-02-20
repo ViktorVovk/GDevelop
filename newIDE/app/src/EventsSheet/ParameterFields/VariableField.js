@@ -530,6 +530,7 @@ export const renderVariableWithIcon = (
     MissingParameterValue,
     projectScopedContainersAccessor,
     highlightedSearchText,
+    highlightedSearchMatchCase,
   }: ParameterInlineRendererProps,
   tooltip: string,
   getVariableSourceFromIdentifier: (
@@ -572,7 +573,9 @@ export const renderVariableWithIcon = (
             [icon]: true,
           })}
         />
-        {highlightSearchText(value, highlightedSearchText)}
+        {highlightSearchText(value, highlightedSearchText, {
+          matchCase: highlightedSearchMatchCase,
+        })}
       </IconAndNameContainer>
     </span>
   );

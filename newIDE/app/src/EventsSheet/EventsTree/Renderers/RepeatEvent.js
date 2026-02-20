@@ -227,6 +227,7 @@ export default class RepeatEvent extends React.Component<
               }
               idPrefix={this.props.idPrefix}
               highlightedSearchText={this.props.highlightedSearchText}
+              highlightedSearchMatchCase={this.props.highlightedSearchMatchCase}
             />
           )}
           renderActionsList={({ className }) => (
@@ -265,6 +266,7 @@ export default class RepeatEvent extends React.Component<
               }
               idPrefix={this.props.idPrefix}
               highlightedSearchText={this.props.highlightedSearchText}
+              highlightedSearchMatchCase={this.props.highlightedSearchMatchCase}
             />
           )}
         />

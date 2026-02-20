@@ -212,7 +212,11 @@ export const renderInlineObjectWithThumbnail = ({
   InvalidParameterValue,
   MissingParameterValue,
   highlightedSearchText,
+  highlightedSearchMatchCase,
 }: ParameterInlineRendererProps): React.Node => {
+  const spanProps = highlightedSearchText
+    ? { matchCase: highlightedSearchMatchCase }
+    : undefined;
   if (!value && !parameterMetadata.isOptional()) {
     return <MissingParameterValue />;
   }
@@ -226,10 +230,10 @@ export const renderInlineObjectWithThumbnail = ({
     >
       {renderObjectThumbnail(value)}
       {expressionIsValid ? (
-        highlightSearchText(value, highlightedSearchText)
+        highlightSearchText(value, highlightedSearchText, spanProps)
       ) : (
         <InvalidParameterValue>
-          {highlightSearchText(value, highlightedSearchText)}
+          {highlightSearchText(value, highlightedSearchText, spanProps)}
         </InvalidParameterValue>
       )}
     </span>
