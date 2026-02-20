@@ -29,6 +29,7 @@ import {
   type InstancesOutsideEditorChanges,
   type ObjectsOutsideEditorChanges,
   type ObjectGroupsOutsideEditorChanges,
+  type NavigateToEventFromGlobalSearchParams,
 } from './EditorContainers/BaseEditor';
 import { type ResourceManagementProps } from '../ResourcesList/ResourceSource';
 import { type HotReloadPreviewButtonProps } from '../HotReload/HotReloadPreviewButton';
@@ -200,17 +201,9 @@ export type EditorTabsPaneCommonProps = {|
     name: string
   ) => void,
   openObjectEvents: (extensionName: string, objectName: string) => void,
-  onNavigateToEventFromGlobalSearch: ({|
-    locationType: 'layout' | 'external-events' | 'extension',
-    name: string,
-    eventPath: Array<number>,
-    highlightedEventPaths: Array<Array<number>>,
-    searchText: string,
-    extensionName?: string,
-    functionName?: string,
-    behaviorName?: string,
-    objectName?: string,
-  |}) => void,
+  onNavigateToEventFromGlobalSearch: (
+    params: NavigateToEventFromGlobalSearchParams
+  ) => void,
   onGlobalSearchWillClose: () => void,
   canOpen: boolean,
   openOpenFromStorageProviderDialog: () => void,

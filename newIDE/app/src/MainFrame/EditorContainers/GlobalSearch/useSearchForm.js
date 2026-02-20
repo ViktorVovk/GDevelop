@@ -10,6 +10,11 @@ type CheckBoxesState = {|
   includeStoreExtensions: boolean,
 |};
 
+type FreezeSearchedState = {|
+  ...CheckBoxesState,
+  searchText: string,
+|};
+
 type UseSearchFormReturn = {|
   search: string,
   setSearch: string => void,
@@ -17,8 +22,10 @@ type UseSearchFormReturn = {|
   setCheckBoxesState: (
     CheckBoxesState | (CheckBoxesState => CheckBoxesState)
   ) => void,
-  lastSearchText: string,
-  setLastSearchText: string => void,
+  frezeSearchedState: FreezeSearchedState,
+  setFrezeSearchedState: (
+    FreezeSearchedState | (FreezeSearchedState => FreezeSearchedState)
+  ) => void,
   hasSearched: boolean,
   setHasSearched: boolean => void,
 |};

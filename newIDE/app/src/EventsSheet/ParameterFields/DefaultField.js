@@ -57,25 +57,28 @@ export const renderInlineDefaultField = ({
   highlightedSearchText,
   highlightedSearchMatchCase,
 }: ParameterInlineRendererProps): string | React.Node => {
-  const spanProps = highlightedSearchText
-    ? { matchCase: highlightedSearchMatchCase }
-    : undefined;
   if (!value && !parameterMetadata.isOptional()) {
     return <MissingParameterValue />;
   }
   if (!expressionIsValid) {
     return (
       <InvalidParameterValue>
-        {highlightSearchText(value, highlightedSearchText, spanProps)}
+        {highlightSearchText(value, highlightedSearchText, {
+          matchCase: highlightedSearchMatchCase,
+        })}
       </InvalidParameterValue>
     );
   }
   if (hasDeprecationWarning) {
     return (
       <DeprecatedParameterValue>
-        {highlightSearchText(value, highlightedSearchText, spanProps)}
+        {highlightSearchText(value, highlightedSearchText, {
+          matchCase: highlightedSearchMatchCase,
+        })}
       </DeprecatedParameterValue>
     );
   }
-  return highlightSearchText(value, highlightedSearchText, spanProps);
+  return highlightSearchText(value, highlightedSearchText, {
+    matchCase: highlightedSearchMatchCase,
+  });
 };

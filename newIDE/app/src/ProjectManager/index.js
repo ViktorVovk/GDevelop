@@ -1243,7 +1243,6 @@ const ProjectManager = React.forwardRef<Props, ProjectManagerInterface>(
         extensionTreeViewItemProps,
         externalEventsTreeViewItemProps,
         externalLayoutTreeViewItemProps,
-        mainMenuCallbacks,
         onOpenGamesDashboardDialog,
         onOpenResources,
         openProjectProperties,
@@ -1251,7 +1250,6 @@ const ProjectManager = React.forwardRef<Props, ProjectManagerInterface>(
         openSearchExtensionDialog,
         project,
         sceneTreeViewItemProps,
-        toggleProjectManager,
       ]
     );
 
