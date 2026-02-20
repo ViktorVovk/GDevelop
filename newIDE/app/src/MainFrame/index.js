@@ -4926,6 +4926,7 @@ const MainFrame = (props: Props): React.MixedElement => {
     onOpenCommandPalette: openCommandPalette,
     onOpenProfile: onOpenProfileDialog,
     onRestartInGameEditor,
+    onOpenGlobalSearch: openGlobalSearch,
   });
 
   const resourceManagementProps: ResourceManagementProps = React.useMemo(

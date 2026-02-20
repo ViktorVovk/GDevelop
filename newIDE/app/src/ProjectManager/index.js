@@ -93,7 +93,6 @@ export const getProjectManagerItemId = (identifier: string): string =>
 const gameSettingsRootFolderId = getProjectManagerItemId('game-settings');
 const gamePropertiesItemId = getProjectManagerItemId('game-properties');
 const gameDashboardItemId = 'manage';
-const globalSearchItemId = getProjectManagerItemId('global-search');
 const globalVariablesItemId = getProjectManagerItemId('global-variables');
 const gameResourcesItemId = getProjectManagerItemId('game-resources');
 export const scenesRootFolderId: string = getProjectManagerItemId('scenes');
@@ -1082,17 +1081,6 @@ const ProjectManager = React.forwardRef<Props, ProjectManagerInterface>(
                         i18n._(t`Game Dashboard`),
                         onOpenGamesDashboardDialog,
                         'res/icons_default/graphs_black.svg'
-                      )
-                    ),
-                    new LeafTreeViewItem(
-                      new ActionTreeViewItemContent(
-                        globalSearchItemId,
-                        i18n._(t`Global search`),
-                        () => {
-                          mainMenuCallbacks.onOpenGlobalSearch();
-                          toggleProjectManager();
-                        },
-                        'res/icons_default/search_black.svg'
                       )
                     ),
                   ];
