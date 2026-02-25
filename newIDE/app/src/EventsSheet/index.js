@@ -468,7 +468,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
         globalSearchResults: resultEvents,
         globalSearchFocusOffset,
         globalSearchText: searchText || '',
-        globalSearchMatchCase: !!matchCase,
+        globalSearchMatchCase: matchCase,
         navigationHighlightEvent: null,
       },
       () => {
