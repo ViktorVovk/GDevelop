@@ -223,7 +223,7 @@ type State = {|
   showSearchPanel: boolean,
   globalSearchResults: ?Array<gdBaseEvent>,
   globalSearchFocusOffset: ?number,
-  globalSearchText: ?string,
+  globalSearchText: string,
   globalSearchMatchCase: boolean,
   searchResults: ?Array<gdBaseEvent>,
   searchFocusOffset: ?number,
@@ -327,7 +327,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
     showSearchPanel: false,
     globalSearchResults: null,
     globalSearchFocusOffset: null,
-    globalSearchText: null,
+    globalSearchText: '',
     globalSearchMatchCase: false,
     searchResults: null,
     searchFocusOffset: null,
@@ -435,9 +435,9 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
 
   setGlobalSearchResults = (
     eventPaths: Array<Array<number>>,
-    focusedEventPath: ?Array<number>,
-    searchText?: ?string,
-    matchCase?: boolean
+    focusedEventPath: Array<number>,
+    searchText: string,
+    matchCase: boolean
   ) => {
     const eventsTree = this._eventsTree;
     const eventsByPtr = new Map<number, gdBaseEvent>();
@@ -467,8 +467,8 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
       {
         globalSearchResults: resultEvents,
         globalSearchFocusOffset,
-        globalSearchText: searchText || null,
-        globalSearchMatchCase: matchCase ?? false,
+        globalSearchText: searchText || '',
+        globalSearchMatchCase: !!matchCase,
         navigationHighlightEvent: null,
       },
       () => {
@@ -488,7 +488,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
     this.setState({
       globalSearchResults: null,
       globalSearchFocusOffset: null,
-      globalSearchText: null,
+      globalSearchText: '',
       globalSearchMatchCase: false,
     });
   };
@@ -2600,9 +2600,9 @@ export type EventsSheetInterface = {|
   scrollToEventPath: (eventPath: Array<number>) => void,
   setGlobalSearchResults: (
     eventPaths: Array<Array<number>>,
-    focusedEventPath: ?Array<number>,
-    searchText?: ?string,
-    matchCase?: boolean
+    focusedEventPath: Array<number>,
+    searchText: string,
+    matchCase: boolean
   ) => void,
   clearGlobalSearchResults: () => void,
 |};
@@ -2642,9 +2642,9 @@ const EventsSheet = (props, ref) => {
   };
   const setGlobalSearchResults = (
     eventPaths: Array<Array<number>>,
-    focusedEventPath: ?Array<number>,
-    searchText?: ?string,
-    matchCase?: boolean
+    focusedEventPath: Array<number>,
+    searchText: string,
+    matchCase: boolean
   ) => {
     if (component.current)
       component.current.setGlobalSearchResults(
