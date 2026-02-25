@@ -856,6 +856,15 @@ const MainFrame = (props: Props): React.MixedElement => {
   );
 
   const previousEditorTabs = React.useRef<EditorTabsState>(state.editorTabs);
+  const globalSearchRetryTimeoutIdRef = React.useRef<?TimeoutID>(null);
+
+  const clearGlobalSearchRetryTimeoutId = React.useCallback(() => {
+    if (globalSearchRetryTimeoutIdRef.current) {
+      clearTimeout(globalSearchRetryTimeoutIdRef.current);
+      globalSearchRetryTimeoutIdRef.current = null;
+    }
+  }, []);
+
   React.useEffect(
     () => {
       const hadGlobalSearchTab = hasGlobalSearchTab(previousEditorTabs.current);
@@ -872,6 +881,13 @@ const MainFrame = (props: Props): React.MixedElement => {
       hasGlobalSearchTab,
       clearGlobalSearchHighlightsInEditorTabs,
     ]
+  );
+
+  React.useEffect(
+    () => () => {
+      clearGlobalSearchRetryTimeoutId();
+    },
+    [clearGlobalSearchRetryTimeoutId]
   );
 
   const {
@@ -2854,6 +2870,44 @@ const MainFrame = (props: Props): React.MixedElement => {
     [clearGlobalSearchHighlightsInEditorTabs, state.editorTabs]
   );
 
+  const openSearchedEditor = React.useCallback(
+    ({
+      locationType,
+      name,
+      extensionName,
+      functionName,
+      behaviorName,
+      objectName,
+    }: {|
+      locationType: 'layout' | 'external-events' | 'extension',
+      name: string,
+      extensionName?: string,
+      functionName?: string,
+      behaviorName?: string,
+      objectName?: string,
+    |}): void => {
+      const openTypeDic: { [typeof locationType]: () => void } = {
+        layout: () =>
+          openLayout(name, {
+            openEventsEditor: true,
+            openSceneEditor: false,
+            focusWhenOpened: 'events',
+          }),
+        'external-events': () => openExternalEvents(name),
+        extension: () =>
+          openEventsFunctionsExtension(
+            extensionName || name,
+            functionName,
+            behaviorName,
+            objectName
+          ),
+      };
+
+      return openTypeDic[locationType]();
+    },
+    [openEventsFunctionsExtension, openExternalEvents, openLayout]
+  );
+
   const navigateToEventFromGlobalSearch = React.useCallback(
     ({
       locationType,
@@ -2878,6 +2932,7 @@ const MainFrame = (props: Props): React.MixedElement => {
       behaviorName?: string,
       objectName?: string,
     |}) => {
+      clearGlobalSearchRetryTimeoutId();
       clearGlobalSearchHighlightsInEditorTabs(state.editorTabs);
       setPendingEventNavigation({
         name,
@@ -2885,30 +2940,27 @@ const MainFrame = (props: Props): React.MixedElement => {
         eventPath,
       });
 
-      if (locationType === 'layout') {
-        openLayout(name, {
-          openEventsEditor: true,
-          openSceneEditor: false,
-          focusWhenOpened: 'events',
-        });
-      } else if (locationType === 'external-events') {
-        openExternalEvents(name);
-      } else if (locationType === 'extension') {
-        openEventsFunctionsExtension(
-          extensionName || name,
-          functionName,
-          behaviorName,
-          objectName
-        );
-      }
+      openSearchedEditor({
+        locationType,
+        name,
+        extensionName,
+        functionName,
+        behaviorName,
+        objectName,
+      });
 
-      setTimeout(() => {
-        const editorKind =
-          locationType === 'layout'
-            ? 'layout events'
-            : locationType === 'external-events'
-            ? 'external events'
-            : 'events functions extension';
+      const EDITOR_MOUNT_INITIAL_DELAY_MS = 100;
+      const EDITOR_MOUNT_RETRY_INTERVAL_MS = 100;
+      const EDITOR_MOUNT_MAX_ATTEMPTS = 25; // ~2.5s total
+
+      const editorKind =
+        locationType === 'layout'
+          ? 'layout events'
+          : locationType === 'external-events'
+          ? 'external events'
+          : 'events functions extension';
+
+      const tryApplyGlobalSearchResults = (attempt: number) => {
         setState(latestState => {
           for (const paneIdentifier in latestState.editorTabs.panes) {
             const pane = latestState.editorTabs.panes[paneIdentifier];
@@ -2948,22 +3000,38 @@ const MainFrame = (props: Props): React.MixedElement => {
                 } else {
                   applySearchResults();
                 }
+                globalSearchRetryTimeoutIdRef.current = null;
                 return latestState;
               }
             }
           }
+
+          if (attempt < EDITOR_MOUNT_MAX_ATTEMPTS) {
+            globalSearchRetryTimeoutIdRef.current = setTimeout(
+              () => tryApplyGlobalSearchResults(attempt + 1),
+              attempt === 0
+                ? EDITOR_MOUNT_INITIAL_DELAY_MS
+                : EDITOR_MOUNT_RETRY_INTERVAL_MS
+            );
+          } else {
+            globalSearchRetryTimeoutIdRef.current = null;
+          }
           return latestState;
         });
-      }, 450);
+      };
+
+      globalSearchRetryTimeoutIdRef.current = setTimeout(
+        () => tryApplyGlobalSearchResults(0),
+        EDITOR_MOUNT_INITIAL_DELAY_MS
+      );
     },
     [
+      clearGlobalSearchRetryTimeoutId,
       clearGlobalSearchHighlightsInEditorTabs,
-      openExternalEvents,
-      openEventsFunctionsExtension,
-      openLayout,
-      setPendingEventNavigation,
-      setState,
       state.editorTabs,
+      setPendingEventNavigation,
+      openSearchedEditor,
+      setState,
     ]
   );
 

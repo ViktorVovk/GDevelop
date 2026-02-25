@@ -1141,6 +1141,11 @@ const EventsTree: React.ComponentType<{
         searchMethod={_isNodeHighlighted}
         searchQuery={props.searchResults}
         searchFocusOffset={props.searchFocusOffset}
+        searchFocusedEvent={
+          props.searchResults && props.searchFocusOffset != null
+            ? props.searchResults[props.searchFocusOffset] || null
+            : null
+        }
         className={props.searchResults ? eventsTreeWithSearchResults : ''}
         reactVirtualizedListProps={{
           ref: list => {
