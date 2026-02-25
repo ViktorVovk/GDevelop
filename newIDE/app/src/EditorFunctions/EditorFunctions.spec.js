@@ -28,6 +28,11 @@ describe('editorFunctions', () => {
       onOpenLayout: jest.fn(),
       onCreateProject: jest.fn(),
     },
+    relatedAiRequestId: 'fake-ai-request-id',
+    getRelatedAiRequestLastMessages: () => ({
+      lastUserMessage: null,
+      lastAssistantMessages: [],
+    }),
     generateEvents: jest.fn(),
     onInstancesModifiedOutsideEditor: jest.fn(),
     onObjectGroupsModifiedOutsideEditor: jest.fn(),

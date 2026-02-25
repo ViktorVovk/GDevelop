@@ -1125,12 +1125,14 @@ export class ResourcesContainer extends EmscriptenObject {
   findFilesNotInResources(filesToCheck: VectorString): VectorString;
   hasResource(name: string): boolean;
   getResource(name: string): Resource;
+  getResourceAt(index: number): Resource;
   getResourceNameWithOrigin(originName: string, originIdentifier: string): string;
   getResourceNameWithFile(file: string): string;
   addResource(res: Resource): boolean;
   removeResource(name: string): void;
   renameResource(oldName: string, name: string): void;
   getResourcePosition(name: string): number;
+  count(): number;
   moveResourceUpInList(oldName: string): boolean;
   moveResourceDownInList(oldName: string): boolean;
   moveResource(oldIndex: number, newIndex: number): void;
@@ -1797,6 +1799,10 @@ export class PlatformExtension extends EmscriptenObject {
   setExtensionHelpPath(helpPath: string): PlatformExtension;
   setIconUrl(iconUrl: string): PlatformExtension;
   setCategory(category: string): PlatformExtension;
+  setShortDescription(shortDescription: string): PlatformExtension;
+  getShortDescription(): string;
+  setDimension(dimension: string): PlatformExtension;
+  getDimension(): string;
   addInstructionOrExpressionGroupMetadata(name: string): InstructionOrExpressionGroupMetadata;
   markAsDeprecated(): void;
   getTags(): VectorString;
@@ -1934,6 +1940,14 @@ export class ForEachEvent extends BaseEvent {
   getActions(): InstructionsList;
   getLoopIndexVariableName(): string;
   setLoopIndexVariableName(name: string): void;
+  getOrderBy(): string;
+  setOrderBy(orderBy: string): void;
+  getOrderByExpression(): Expression;
+  getOrder(): string;
+  setOrder(order: string): void;
+  getLimit(): string;
+  setLimit(limit: string): void;
+  getLimitExpression(): Expression;
 }
 
 export class ForEachChildVariableEvent extends BaseEvent {
@@ -2568,6 +2582,8 @@ export class EventsFunctionsExtension extends EmscriptenObject {
   getShortDescription(): string;
   setDescription(description: string): EventsFunctionsExtension;
   getDescription(): string;
+  setDimension(dimension: string): EventsFunctionsExtension;
+  getDimension(): string;
   setName(name: string): EventsFunctionsExtension;
   getName(): string;
   setFullName(fullName: string): EventsFunctionsExtension;

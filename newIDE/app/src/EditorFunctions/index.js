@@ -39,6 +39,7 @@ import { type AssetShortHeader } from '../Utils/GDevelopServices/Asset';
 import { swapAsset } from '../AssetStore/AssetSwapper';
 import { type EnsureExtensionInstalledOptions } from '../AiGeneration/UseEnsureExtensionInstalled';
 import { getObjectFolderOrObjectWithContextFromObjectName } from '../SceneEditor/ObjectFolderOrObjectsSelection';
+import { getObjectSizeAndOriginInfo } from './Utils';
 
 const gd: libGDevelop = global.gd;
 
@@ -119,6 +120,11 @@ export type EditorFunctionGenericOutput = {|
 
   // Used when new resources are added by a function call:
   newlyAddedResources?: Array<SingleResourceSearchAndInstallResult>,
+
+  // Size/origin/center info for newly created objects, keyed by object name:
+  newObjectDefaultSize?: {
+    [string]: {| size: string, origin: string, center: string |},
+  },
 |};
 
 export type EventsGenerationResult =
@@ -139,6 +145,7 @@ export type EventsGenerationOptions = {|
   existingEventsAsText: string,
   existingEventsJson: string | null,
   placementHint: string,
+  relatedAiRequestId: string,
 |};
 
 export type AssetSearchAndInstallResult = {|
@@ -155,6 +162,9 @@ export type AssetSearchAndInstallOptions = {|
   searchTerms: string,
   description: string,
   twoDimensionalViewKind: string,
+  relatedAiRequestId?: string | null,
+  lastUserMessage?: string | null,
+  lastAssistantMessages?: string[],
 |};
 
 export type EditorCallbacks = {|
@@ -209,12 +219,19 @@ type RenderForEditorOptions = {|
   editorFunctionCallResultOutput: any,
 |};
 
+export type RelatedAiRequestLastMessages = {|
+  lastUserMessage: string | null,
+  lastAssistantMessages: string[],
+|};
+
 type LaunchFunctionOptionsWithoutProject = {|
   PixiResourcesLoader: any,
   args: any,
   editorCallbacks: EditorCallbacks,
   toolOptions: ToolOptions | null,
   i18n: I18nType,
+  relatedAiRequestId: string | null,
+  getRelatedAiRequestLastMessages: () => RelatedAiRequestLastMessages,
   generateEvents: (
     options: EventsGenerationOptions
   ) => Promise<EventsGenerationResult>,
@@ -653,6 +670,8 @@ const createOrReplaceObject: EditorFunction = {
   launchFunction: async ({
     project,
     args,
+    relatedAiRequestId,
+    getRelatedAiRequestLastMessages,
     ensureExtensionInstalled,
     searchAndInstallAsset,
     onObjectsModifiedOutsideEditor,
@@ -716,10 +735,9 @@ const createOrReplaceObject: EditorFunction = {
         )
         .filter(Boolean);
 
-      const propertiesText = `It has the following properties: ${propertyShortTexts.join(
+      return `It has the following properties: ${propertyShortTexts.join(
         ', '
       )}.`;
-      return propertiesText;
     };
 
     // Check if target object already exists.
@@ -777,16 +795,21 @@ const createOrReplaceObject: EditorFunction = {
 
       // First try to search and install an object from the asset store.
       try {
-        const { status, message, createdObjects } = await searchAndInstallAsset(
-          {
-            objectsContainer: targetObjectsContainer,
-            objectName: targetObjectName,
-            objectType: object_type,
-            searchTerms: search_terms || '',
-            description: description || '',
-            twoDimensionalViewKind: two_dimensional_view_kind || '',
-          }
-        );
+        const {
+          status,
+          message,
+          createdObjects,
+          assetShortHeader,
+        } = await searchAndInstallAsset({
+          objectsContainer: targetObjectsContainer,
+          objectName: targetObjectName,
+          objectType: object_type,
+          searchTerms: search_terms || '',
+          description: description || '',
+          twoDimensionalViewKind: two_dimensional_view_kind || '',
+          relatedAiRequestId,
+          ...getRelatedAiRequestLastMessages(),
+        });
 
         if (status === 'error') {
           return makeGenericFailure(
@@ -810,12 +833,24 @@ const createOrReplaceObject: EditorFunction = {
 
           if (createdObjects.length === 1) {
             const object = createdObjects[0];
-            return makeGenericSuccess(
-              [
+            const sizeAndOriginInfo = getObjectSizeAndOriginInfo(
+              object,
+              project,
+              assetShortHeader
+            );
+            const result: EditorFunctionGenericOutput = {
+              success: true,
+              message: [
                 `Created (from the asset store) object "${object.getName()}" of type "${object.getType()}" in scene "${scene_name}".`,
                 getPropertiesText(object),
-              ].join(' ')
-            );
+              ].join(' '),
+            };
+            if (sizeAndOriginInfo) {
+              result.newObjectDefaultSize = {
+                [object.getName()]: sizeAndOriginInfo,
+              };
+            }
+            return result;
           }
 
           return makeGenericSuccess(
@@ -882,18 +917,42 @@ const createOrReplaceObject: EditorFunction = {
         isNewObjectTypeUsed: isTheFirstOfItsTypeInProject,
       });
 
-      return makeGenericSuccess(
-        [
+      const sizeAndOriginInfo = getObjectSizeAndOriginInfo(
+        object,
+        project,
+        null
+      );
+      const result: EditorFunctionGenericOutput = {
+        success: true,
+        message: [
           `Created a new object (from scratch) called "${targetObjectName}" of type "${object_type}" in scene "${scene_name}".`,
           getPropertiesText(object),
-        ].join(' ')
-      );
+        ].join(' '),
+      };
+      if (sizeAndOriginInfo) {
+        result.newObjectDefaultSize = {
+          [targetObjectName]: sizeAndOriginInfo,
+        };
+      }
+      return result;
     };
 
     const replaceExistingObject = async () => {
       if (!existingTargetObject) {
         // No existing object to replace, create a new one.
         return createNewObject();
+      }
+
+      if (existingTargetObject.getType() !== object_type) {
+        return makeGenericFailure(
+          `Existing object "${existingTargetObject.getName()}" is of type "${existingTargetObject.getType()}". It can't be replaced by an object of type "${object_type}". This object was not changed/replaced.`
+        );
+      }
+
+      if (!search_terms && !description && !two_dimensional_view_kind) {
+        return makeGenericFailure(
+          `No search terms, description or information were provided to replace the object "${existingTargetObject.getName()}". This object was not changed/replaced.`
+        );
       }
 
       const objectsContainerWhereObjectWasFound = isTargetObjectGlobal
@@ -922,6 +981,8 @@ const createOrReplaceObject: EditorFunction = {
           searchTerms: search_terms || '',
           description: description || '',
           twoDimensionalViewKind: two_dimensional_view_kind || '',
+          relatedAiRequestId,
+          ...getRelatedAiRequestLastMessages(),
         });
 
         if (status === 'error') {
@@ -3567,6 +3628,7 @@ const addSceneEvents: EditorFunction = {
     project,
     args,
     toolOptions,
+    relatedAiRequestId,
     generateEvents,
     onSceneEventsModifiedOutsideEditor,
     ensureExtensionInstalled,
@@ -3591,6 +3653,11 @@ const addSceneEvents: EditorFunction = {
     if (!project.hasLayoutNamed(sceneName)) {
       return makeGenericFailure(`Scene not found: "${sceneName}".`);
     }
+    if (!relatedAiRequestId) {
+      return makeGenericFailure(
+        'No related AI request ID found for events generation.'
+      );
+    }
     const scene = project.getLayout(sceneName);
     const currentSceneEvents = scene.getEvents();
 
@@ -3612,6 +3679,7 @@ const addSceneEvents: EditorFunction = {
           existingEventsAsText,
           existingEventsJson,
           placementHint,
+          relatedAiRequestId,
         }
       );
 
