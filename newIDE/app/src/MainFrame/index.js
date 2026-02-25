@@ -2920,12 +2920,34 @@ const MainFrame = (props: Props): React.MixedElement => {
                 editorRef &&
                 editorRef.setGlobalSearchResults
               ) {
-                editorRef.setGlobalSearchResults(
-                  highlightedEventPaths,
-                  eventPath,
-                  searchText,
-                  matchCase
-                );
+                const applySearchResults = () => {
+                  editorRef.setGlobalSearchResults(
+                    highlightedEventPaths,
+                    eventPath,
+                    searchText,
+                    matchCase
+                  );
+                };
+                // For extensions: ensure we're on the correct function before
+                // setting search results. openEditorTab only focuses an
+                // already-open tab and does not reapply extraEditorProps.
+                if (
+                  locationType === 'extension' &&
+                  functionName &&
+                  editorRef.selectEventsFunctionByName
+                ) {
+                  editorRef.selectEventsFunctionByName(
+                    functionName,
+                    behaviorName || null,
+                    objectName || null
+                  );
+                  // Defer so React can re-render with the new function's events
+                  requestAnimationFrame(() => {
+                    requestAnimationFrame(applySearchResults);
+                  });
+                } else {
+                  applySearchResults();
+                }
                 return latestState;
               }
             }
