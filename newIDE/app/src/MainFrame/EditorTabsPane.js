@@ -204,7 +204,7 @@ export type EditorTabsPaneCommonProps = {|
   onNavigateToEventFromGlobalSearch: (
     params: NavigateToEventFromGlobalSearchParams
   ) => void,
-  onGlobalSearchWillClose: () => void,
+  onEditorTabClosing: (editorTab: EditorTab) => void,
   canOpen: boolean,
   openOpenFromStorageProviderDialog: () => void,
   openFromFileMetadataWithStorageProvider: (
@@ -357,7 +357,7 @@ const EditorTabsPane: React.ComponentType<{
     onDeletedEventsBasedObject,
     openObjectEvents,
     onNavigateToEventFromGlobalSearch,
-    onGlobalSearchWillClose,
+    onEditorTabClosing,
     canOpen,
     openOpenFromStorageProviderDialog,
     openFromFileMetadataWithStorageProvider,
@@ -583,47 +583,33 @@ const EditorTabsPane: React.ComponentType<{
           displayMenuIcon={paneIdentifier === 'center'}
           hidden={tabsTitleBarAndEditorToolbarHidden}
           toggleProjectManager={toggleProjectManager}
-          renderTabs={(onEditorTabHovered, onEditorTabClosing) => (
+          renderTabs={(onEditorTabHovered, clearTooltipOnTabClose) => (
             <DraggableEditorTabs
               hideLabels={false}
               editors={paneEditorTabs}
               currentTab={currentTab}
               onClickTab={onChangeEditorTab}
               onCloseTab={(editorTab: EditorTab) => {
-                // Call onEditorTabClosing before to ensure any tooltip is removed before the tab is closed.
-                onEditorTabClosing();
-                if (editorTab.kind === 'global-search') {
-                  onGlobalSearchWillClose();
-                }
+                clearTooltipOnTabClose();
+                onEditorTabClosing(editorTab);
                 onCloseEditorTab(editorTab);
               }}
               onCloseOtherTabs={(editorTab: EditorTab) => {
-                // Call onEditorTabClosing before to ensure any tooltip is removed before the tab is closed.
-                onEditorTabClosing();
-                if (
-                  paneEditorTabs.some(
-                    paneEditorTab =>
-                      paneEditorTab.kind === 'global-search' &&
-                      paneEditorTab !== editorTab &&
-                      paneEditorTab.closable
-                  )
-                ) {
-                  onGlobalSearchWillClose();
-                }
+                clearTooltipOnTabClose();
+                paneEditorTabs.forEach(paneEditorTab => {
+                  if (paneEditorTab !== editorTab && paneEditorTab.closable) {
+                    onEditorTabClosing(paneEditorTab);
+                  }
+                });
                 onCloseOtherEditorTabs(editorTab);
               }}
               onCloseAll={() => {
-                // Call onEditorTabClosing before to ensure any tooltip is removed before the tab is closed.
-                onEditorTabClosing();
-                if (
-                  paneEditorTabs.some(
-                    paneEditorTab =>
-                      paneEditorTab.kind === 'global-search' &&
-                      paneEditorTab.closable
-                  )
-                ) {
-                  onGlobalSearchWillClose();
-                }
+                clearTooltipOnTabClose();
+                paneEditorTabs.forEach(paneEditorTab => {
+                  if (paneEditorTab.closable) {
+                    onEditorTabClosing(paneEditorTab);
+                  }
+                });
                 onCloseAllEditorTabs();
               }}
               onTabActivated={onEditorTabActivated}

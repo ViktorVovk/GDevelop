@@ -2866,8 +2866,12 @@ const MainFrame = (props: Props): React.MixedElement => {
     [getEditorOpeningOptions, setState]
   );
 
-  const clearGlobalSearchHighlightsInOpenedEditors = React.useCallback(
-    () => clearGlobalSearchHighlightsInEditorTabs(state.editorTabs),
+  const onEditorTabClosing = React.useCallback(
+    (editorTab: EditorTab) => {
+      if (editorTab.kind === 'global-search') {
+        clearGlobalSearchHighlightsInEditorTabs(state.editorTabs);
+      }
+    },
     [clearGlobalSearchHighlightsInEditorTabs, state.editorTabs]
   );
 
@@ -5189,7 +5193,7 @@ const MainFrame = (props: Props): React.MixedElement => {
     onDeletedEventsBasedObject: onDeletedEventsBasedObject,
     openObjectEvents: openObjectEvents,
     onNavigateToEventFromGlobalSearch: navigateToEventFromGlobalSearch,
-    onGlobalSearchWillClose: clearGlobalSearchHighlightsInOpenedEditors,
+    onEditorTabClosing: onEditorTabClosing,
     canOpen: !!props.storageProviders.filter(
       ({ hiddenInOpenDialog }) => !hiddenInOpenDialog
     ).length,
