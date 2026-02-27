@@ -48,6 +48,7 @@ import { type HotReloadPreviewButtonProps } from '../HotReload/HotReloadPreviewB
 import PropertyListEditor, {
   type PropertyListEditorInterface,
 } from './PropertyListEditor';
+import type { EventPath } from '../Types/EventPath';
 
 const gd: libGDevelop = global.gd;
 
@@ -277,8 +278,8 @@ export default class EventsFunctionsExtensionEditor extends React.Component<
   };
 
   setGlobalSearchResults = (
-    eventPaths: Array<Array<number>>,
-    focusedEventPath: Array<number>,
+    eventPaths: Array<EventPath>,
+    focusedEventPath: EventPath,
     searchText: string,
     matchCase: boolean
   ) => {
@@ -298,7 +299,7 @@ export default class EventsFunctionsExtensionEditor extends React.Component<
     }
   };
 
-  scrollToEventPath = (eventPath: Array<number>) => {
+  scrollToEventPath = (eventPath: EventPath) => {
     if (this.editor) {
       this.editor.scrollToEventPath(eventPath);
     }

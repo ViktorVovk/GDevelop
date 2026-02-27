@@ -1,11 +1,13 @@
 // @flow
+import type { EventPath } from '../Types/EventPath';
+
 import { mapFor } from './MapFor';
 
 const gd: libGDevelop = global.gd;
 
 export type GlobalSearchMatch = {|
   id: string,
-  eventPath: Array<number>,
+  eventPath: EventPath,
   positionInList: number,
   context: string,
 |};
@@ -54,9 +56,9 @@ export type GlobalSearchInputs = {|
 
 const buildEventPtrToPathMap = (
   eventsList: gdEventsList,
-  parentPath: Array<number> = []
-): Map<number, Array<number>> => {
-  const map = new Map<number, Array<number>>();
+  parentPath: EventPath = []
+): Map<number, EventPath> => {
+  const map = new Map<number, EventPath>();
   mapFor(0, eventsList.getEventsCount(), index => {
     const event = eventsList.getEventAt(index);
     const currentPath = [...parentPath, index];
@@ -75,7 +77,7 @@ const buildEventPtrToPathMap = (
 
 const getEventAtPath = (
   eventsList: gdEventsList,
-  path: Array<number>
+  path: EventPath
 ): ?gdBaseEvent => {
   let currentList = eventsList;
   for (let i = 0; i < path.length; i++) {
@@ -111,7 +113,7 @@ const searchInEventsList = (
   // Avoid any heavy C++ calls (like getEventContext) while the vector is alive,
   // because they can trigger emscripten heap growth and invalidate the vector's memory.
   type RawEntry = {|
-    eventPath: Array<number>,
+    eventPath: EventPath,
     positionInList: number,
     index: number,
   |};

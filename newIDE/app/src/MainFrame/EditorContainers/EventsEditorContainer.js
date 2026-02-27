@@ -1,6 +1,7 @@
 // @flow
 import * as React from 'react';
 import EventsSheet, { type EventsSheetInterface } from '../../EventsSheet';
+import type { EventPath } from '../../Types/EventPath';
 import { sendEventsExtractedAsFunction } from '../../Utils/Analytics/EventSender';
 import {
   type RenderEditorContainerProps,
@@ -63,13 +64,13 @@ export class EventsEditorContainer extends React.Component<RenderEditorContainer
     }
   }
 
-  scrollToEventPath(eventPath: Array<number>) {
+  scrollToEventPath(eventPath: EventPath) {
     if (this.editor) this.editor.scrollToEventPath(eventPath);
   }
 
   setGlobalSearchResults(
-    eventPaths: Array<Array<number>>,
-    focusedEventPath: Array<number>,
+    eventPaths: Array<EventPath>,
+    focusedEventPath: EventPath,
     searchText: string,
     matchCase: boolean
   ) {

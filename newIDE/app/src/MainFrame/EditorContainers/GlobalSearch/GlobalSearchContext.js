@@ -1,13 +1,14 @@
 // @flow
 import * as React from 'react';
 import type { GlobalSearchGroup } from '../../../Utils/EventsGlobalSearchScanner';
+import type { EventPath } from '../../../Types/EventPath';
 
 export type GlobalSearchContextType = {|
   searchText: string,
   matchCase: boolean,
   navigateToMatch: (
     group: GlobalSearchGroup,
-    focusedEventPath: Array<number>
+    focusedEventPath: EventPath
   ) => void,
 |};
 
@@ -17,7 +18,7 @@ export const GlobalSearchContextProvider: React.Context<GlobalSearchContextType>
     matchCase: false,
     navigateToMatch: (
       _group: GlobalSearchGroup,
-      _focusedEventPath: Array<number>
+      _focusedEventPath: EventPath
     ) => {},
   }
 );

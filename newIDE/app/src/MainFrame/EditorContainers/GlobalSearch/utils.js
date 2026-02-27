@@ -7,14 +7,15 @@ import type {
   GlobalSearchGroup,
   GlobalSearchMatch,
 } from '../../../Utils/EventsGlobalSearchScanner';
+import type { EventPath } from '../../../Types/EventPath';
 
-export const getEventPathLabel = (path: Array<number>): string =>
+export const getEventPathLabel = (path: EventPath): string =>
   path.length ? path.map(index => index + 1).join(' > ') : '-';
 
 export const deduplicateEventPaths = (
   matches: Array<GlobalSearchMatch>
-): Array<Array<number>> => {
-  const uniquePathByKey = new Map<string, Array<number>>();
+): Array<EventPath> => {
+  const uniquePathByKey = new Map<string, EventPath>();
   matches.forEach(match => {
     const key = match.eventPath.join('.');
     if (!uniquePathByKey.has(key)) {

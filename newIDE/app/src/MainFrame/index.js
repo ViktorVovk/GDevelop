@@ -234,6 +234,7 @@ import StandaloneDialog from './StandAloneDialog';
 import { useInGameEditorSettings } from '../EmbeddedGame/InGameEditorSettings';
 import { ProjectScopedContainersAccessor } from '../InstructionOrExpression/EventsScope';
 import { useAutomatedRegularInGameEditorRestart } from '../EmbeddedGame/UseAutomatedRegularInGameEditorRestart';
+import type { EventPath } from '../Types/EventPath';
 
 const GD_STARTUP_TIMES = global.GD_STARTUP_TIMES || [];
 
@@ -2923,8 +2924,8 @@ const MainFrame = (props: Props): React.MixedElement => {
     }: {|
       locationType: 'layout' | 'external-events' | 'extension',
       name: string,
-      eventPath: Array<number>,
-      highlightedEventPaths: Array<Array<number>>,
+      eventPath: EventPath,
+      highlightedEventPaths: Array<EventPath>,
       searchText: string,
       matchCase?: boolean,
       extensionName?: string,

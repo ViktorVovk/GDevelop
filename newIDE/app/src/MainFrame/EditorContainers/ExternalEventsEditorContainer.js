@@ -32,6 +32,7 @@ import {
   type HotReloadSteps,
 } from '../../EmbeddedGame/EmbeddedGameFrame';
 import Background from '../../UI/Background';
+import type { EventPath } from '../../Types/EventPath';
 
 const styles = {
   container: {
@@ -94,13 +95,13 @@ export class ExternalEventsEditorContainer extends React.Component<
     }
   }
 
-  scrollToEventPath(eventPath: Array<number>) {
+  scrollToEventPath(eventPath: EventPath) {
     if (this.editor) this.editor.scrollToEventPath(eventPath);
   }
 
   setGlobalSearchResults(
-    eventPaths: Array<Array<number>>,
-    focusedEventPath: Array<number>,
+    eventPaths: Array<EventPath>,
+    focusedEventPath: EventPath,
     searchText: string,
     matchCase: boolean
   ) {

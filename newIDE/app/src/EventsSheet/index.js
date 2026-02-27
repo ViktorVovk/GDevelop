@@ -85,6 +85,7 @@ import PreferencesContext, {
 import EventsFunctionExtractorDialog from './EventsFunctionExtractor/EventsFunctionExtractorDialog';
 import { createNewInstructionForEventsFunction } from './EventsFunctionExtractor';
 import { type EventsScope } from '../InstructionOrExpression/EventsScope';
+import type { EventPath } from '../Types/EventPath';
 import {
   pasteEventsFromClipboardInSelection,
   copySelectionToClipboard,
@@ -406,7 +407,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
     );
   };
 
-  scrollToEventPath = (eventPath: Array<number>) => {
+  scrollToEventPath = (eventPath: EventPath) => {
     const eventsTree = this._eventsTree;
     if (!eventsTree || eventPath.length === 0) return;
 
@@ -434,8 +435,8 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
   };
 
   setGlobalSearchResults = (
-    eventPaths: Array<Array<number>>,
-    focusedEventPath: Array<number>,
+    eventPaths: Array<EventPath>,
+    focusedEventPath: EventPath,
     searchText: string,
     matchCase: boolean
   ) => {
@@ -2675,10 +2676,10 @@ export type EventsSheetInterface = {|
   updateToolbar: () => void,
   onResourceExternallyChanged: ({| identifier: string |}) => void,
   onEventsModifiedOutsideEditor: (changes: OutOfEditorChanges) => void,
-  scrollToEventPath: (eventPath: Array<number>) => void,
+  scrollToEventPath: (eventPath: EventPath) => void,
   setGlobalSearchResults: (
-    eventPaths: Array<Array<number>>,
-    focusedEventPath: Array<number>,
+    eventPaths: Array<EventPath>,
+    focusedEventPath: EventPath,
     searchText: string,
     matchCase: boolean
   ) => void,
@@ -2715,12 +2716,12 @@ const EventsSheet = (props, ref) => {
     addNewAiGeneratedEventIds(changes.newOrChangedAiGeneratedEventIds);
     if (component.current) component.current.onEventsModifiedOutsideEditor();
   };
-  const scrollToEventPath = (eventPath: Array<number>) => {
+  const scrollToEventPath = (eventPath: EventPath) => {
     if (component.current) component.current.scrollToEventPath(eventPath);
   };
   const setGlobalSearchResults = (
-    eventPaths: Array<Array<number>>,
-    focusedEventPath: Array<number>,
+    eventPaths: Array<EventPath>,
+    focusedEventPath: EventPath,
     searchText: string,
     matchCase: boolean
   ) => {

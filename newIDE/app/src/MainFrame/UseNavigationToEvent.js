@@ -1,11 +1,12 @@
 // @flow
 import * as React from 'react';
 import { type EditorTabsState } from './EditorTabs/EditorTabsHandler';
+import type { EventPath } from '../Types/EventPath';
 
 export type EventNavigationTarget = {|
   name: string,
   locationType: 'layout' | 'external-events' | 'extension',
-  eventPath: Array<number>,
+  eventPath: EventPath,
 |};
 
 type UseNavigationToEventProps = {|

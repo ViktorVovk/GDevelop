@@ -21,6 +21,7 @@ import { useSearchForm } from './useSearchForm';
 import { deduplicateEventPaths } from './utils';
 import { styles } from './styles';
 import { GroupList } from './GroupList';
+import type { EventPath } from '../../../Types/EventPath';
 
 type GlobalEventsSearchEditorProps = {|
   project: gdProject,
@@ -71,7 +72,7 @@ export const GlobalEventsSearchEditor = ({
   };
 
   const navigateToMatch = React.useCallback(
-    (group: GlobalSearchGroup, focusedEventPath: Array<number>) => {
+    (group: GlobalSearchGroup, focusedEventPath: EventPath) => {
       let params: NavigateToEventFromGlobalSearchParams = {
         locationType: group.targetType,
         name: group.name || '',

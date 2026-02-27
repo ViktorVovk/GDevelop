@@ -23,6 +23,7 @@ import { type GamesPlatformFrameTools } from './HomePage/PlaySection/UseGamesPla
 import { type ObjectWithContext } from '../../ObjectsList/EnumerateObjects';
 import { type CreateProjectResult } from '../../Utils/UseCreateProject';
 import { type OpenAskAiOptions } from '../../AiGeneration/Utils';
+import type { EventPath } from '../../Types/EventPath';
 
 export type EditorContainerExtraProps = {|
   // Events function extension editor
@@ -58,8 +59,8 @@ export type ObjectGroupsOutsideEditorChanges = {|
 export type NavigateToEventFromGlobalSearchParams = {|
   locationType: 'layout' | 'external-events' | 'extension',
   name: string,
-  eventPath: Array<number>,
-  highlightedEventPaths: Array<Array<number>>,
+  eventPath: EventPath,
+  highlightedEventPaths: Array<EventPath>,
   searchText: string,
   matchCase?: boolean,
   extensionName?: string,

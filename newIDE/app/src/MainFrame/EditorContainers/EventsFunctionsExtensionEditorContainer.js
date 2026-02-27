@@ -14,6 +14,7 @@ import {
   setEditorHotReloadNeeded,
   type HotReloadSteps,
 } from '../../EmbeddedGame/EmbeddedGameFrame';
+import type { EventPath } from '../../Types/EventPath';
 
 const styles = {
   container: {
@@ -49,8 +50,8 @@ export class EventsFunctionsExtensionEditorContainer extends React.Component<Ren
   }
 
   setGlobalSearchResults(
-    eventPaths: Array<Array<number>>,
-    focusedEventPath: Array<number>,
+    eventPaths: Array<EventPath>,
+    focusedEventPath: EventPath,
     searchText: string,
     matchCase: boolean
   ) {
@@ -70,7 +71,7 @@ export class EventsFunctionsExtensionEditorContainer extends React.Component<Ren
     }
   }
 
-  scrollToEventPath(eventPath: Array<number>) {
+  scrollToEventPath(eventPath: EventPath) {
     if (this.editor) {
       this.editor.scrollToEventPath(eventPath);
     }
