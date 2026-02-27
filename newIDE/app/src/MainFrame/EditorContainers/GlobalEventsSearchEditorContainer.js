@@ -10,7 +10,7 @@ import type {
 } from './BaseEditor';
 import { type ObjectWithContext } from '../../ObjectsList/EnumerateObjects';
 import { type HotReloadSteps } from '../../EmbeddedGame/EmbeddedGameFrame';
-import { GlobalEventsSearchEditor } from './GlobalSearch';
+import { GlobalEventsSearchEditor } from './GlobalSearch/GlobalEventsSearchEditor';
 
 export class GlobalEventsSearchEditorContainer extends React.Component<RenderEditorContainerProps> {
   componentDidMount() {
