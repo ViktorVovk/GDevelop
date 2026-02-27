@@ -228,11 +228,12 @@ export const GlobalEventsSearchEditor = ({
                   <span style={styles.searchQueryText}>
                     <span>"{frezeSearchedState.searchText}"</span>
                     <Text noMargin size="body-small" color="secondary">
-                      {`Found ${totalMatchCount} ${
-                        totalMatchCount === 1 ? 'match' : 'matches'
-                      } in ${groups.length} ${
-                        groups.length === 1 ? 'event sheet' : 'event sheets'
-                      }`}
+                      <Trans>
+                        Found {totalMatchCount}{' '}
+                        {totalMatchCount === 1 ? 'match' : 'matches'} in{' '}
+                        {groups.length}{' '}
+                        {groups.length === 1 ? 'event sheet' : 'event sheets'}
+                      </Trans>
                     </Text>
                   </span>
                 </div>

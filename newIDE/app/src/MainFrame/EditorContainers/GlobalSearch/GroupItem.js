@@ -1,5 +1,6 @@
 // @flow
 import * as React from 'react';
+import { Trans } from '@lingui/macro';
 import {
   Accordion,
   AccordionBody,
@@ -33,7 +34,13 @@ export const GroupItem: React.ComponentType<GroupItemProps> = React.memo(
               size="small"
               variant="outlined"
               color="secondary"
-              label={totalMatches === 1 ? '1 match' : `${totalMatches} matches`}
+              label={
+                totalMatches === 1 ? (
+                  <Trans>1 match</Trans>
+                ) : (
+                  <Trans>{totalMatches} matches</Trans>
+                )
+              }
               style={styles.matchCountChip}
             />,
           ]}
