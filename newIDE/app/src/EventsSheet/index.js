@@ -473,6 +473,9 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
       {
         searchHighlight,
         navigationHighlightEvent: null,
+        showSearchPanel: true,
+        localSearchText: searchText || '',
+        localSearchMatchCase: matchCase,
       },
       () => {
         if (!eventsTree) return;
@@ -578,6 +581,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
       showSearchPanel: false,
       localSearchText: '',
       localSearchMatchCase: false,
+      searchHighlight: null,
     });
   };
 
@@ -2083,6 +2087,33 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
     }
   };
 
+  _goToNextFromGlobalSearch = (): ?gdBaseEvent => {
+    const { searchHighlight } = this.state;
+    if (!searchHighlight || !searchHighlight.results.length) return null;
+    const results = searchHighlight.results;
+    const newOffset = (searchHighlight.focusOffset + 1) % results.length;
+    const event = results[newOffset];
+    this.setState({
+      searchHighlight: { ...searchHighlight, focusOffset: newOffset },
+    });
+    return event;
+  };
+
+  _goToPreviousFromGlobalSearch = (): ?gdBaseEvent => {
+    const { searchHighlight } = this.state;
+    if (!searchHighlight || !searchHighlight.results.length) return null;
+    const results = searchHighlight.results;
+    const newOffset =
+      searchHighlight.focusOffset <= 0
+        ? results.length - 1
+        : searchHighlight.focusOffset - 1;
+    const event = results[newOffset];
+    this.setState({
+      searchHighlight: { ...searchHighlight, focusOffset: newOffset },
+    });
+    return event;
+  };
+
   _replaceInEvents = (
     doReplaceInEvents: (
       inputs: ReplaceInEventsInputs,
@@ -2111,6 +2142,7 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
     this.setState({
       localSearchText: inputs.searchText || '',
       localSearchMatchCase: inputs.matchCase,
+      searchHighlight: null, // Switch from global to local search
     });
     doSearchInEvents(inputs, () => {
       this.forceUpdate(() => {
@@ -2507,23 +2539,50 @@ export class EventsSheetComponentWithoutHandle extends React.Component<
                         this._replaceInEvents(replaceInEvents, inputs);
                       }}
                       resultsCount={
-                        eventsSearchResultEvents
+                        this.state.searchHighlight
+                          ? this.state.searchHighlight.results.length
+                          : eventsSearchResultEvents
                           ? eventsSearchResultEvents.length
                           : null
                       }
                       hasEventSelected={hasEventSelected(this.state.selection)}
                       onGoToPreviousSearchResult={() =>
                         this._ensureUnfoldedAndScrollTo(
-                          goToPreviousSearchResult
+                          this.state.searchHighlight
+                            ? this._goToPreviousFromGlobalSearch
+                            : goToPreviousSearchResult
                         )
                       }
                       onCloseSearchPanel={() => {
                         this._closeSearchPanel();
                       }}
                       onGoToNextSearchResult={() =>
-                        this._ensureUnfoldedAndScrollTo(goToNextSearchResult)
+                        this._ensureUnfoldedAndScrollTo(
+                          this.state.searchHighlight
+                            ? this._goToNextFromGlobalSearch
+                            : goToNextSearchResult
+                        )
                       }
-                      searchFocusOffset={searchFocusOffset}
+                      searchFocusOffset={
+                        this.state.searchHighlight
+                          ? this.state.searchHighlight.focusOffset
+                          : searchFocusOffset
+                      }
+                      initialSearchText={
+                        this.state.searchHighlight
+                          ? this.state.searchHighlight.text || undefined
+                          : undefined
+                      }
+                      initialMatchCase={
+                        this.state.searchHighlight
+                          ? this.state.searchHighlight.matchCase
+                          : undefined
+                      }
+                      initialTab={
+                        this.state.searchHighlight
+                          ? 'search-in-event-sentences'
+                          : undefined
+                      }
                     />
                   </ErrorBoundary>
                 )}
