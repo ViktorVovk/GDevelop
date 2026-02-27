@@ -11,7 +11,7 @@ import { Column } from '../../../UI/Grid';
 import type { GlobalSearchGroup } from '../../../Utils/EventsGlobalSearchScanner';
 import { getGroupIcon } from './utils';
 import { styles } from './styles';
-import { RenderMatchRowList } from './RenderMatchRowList';
+import { SearchMatchRowList } from './SearchMatchRowList';
 
 export type GroupItemProps = { group: GlobalSearchGroup };
 
@@ -57,7 +57,7 @@ export const GroupItem: React.ComponentType<GroupItemProps> = React.memo(
         </AccordionHeader>
         <AccordionBody disableGutters>
           <Column noMargin expand>
-            <RenderMatchRowList group={group} />
+            <SearchMatchRowList group={group} />
           </Column>
         </AccordionBody>
       </Accordion>

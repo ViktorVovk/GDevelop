@@ -9,12 +9,12 @@ import { GlobalSearchContextProvider } from './GlobalSearchContext';
 import { styles, useEventRowStyles } from './styles';
 import { getMatchContext, parseMatchContext } from './utils';
 
-type RenderMatchRowProps = {|
+type SearchMatchRowProps = {|
   match: GlobalSearchMatch,
   group: GlobalSearchGroup,
 |};
 
-export const RenderMatchRow: React.ComponentType<RenderMatchRowProps> = React.memo<RenderMatchRowProps>(
+export const SearchMatchRow: React.ComponentType<SearchMatchRowProps> = React.memo<SearchMatchRowProps>(
   ({ match, group }): React.MixedElement => {
     const { searchText, navigateToMatch, matchCase } = React.useContext(
       GlobalSearchContextProvider
